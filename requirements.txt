@@ -79,7 +79,7 @@ tornado==5.0.2
 tqdm==4.36.1
 typed-ast==1.4.0
 umsgpack==0.1.0
-urllib3==1.22
+urllib3==1.24.2
 wcwidth==0.1.7
 Werkzeug==0.16.0
 wrapt==1.11.2
