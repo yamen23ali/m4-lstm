@@ -38,3 +38,20 @@ def plot_series(x, y, predictedY, series_num = 3):
     axs[1].set_ylabel('Value')
     axs[0].axvline(x=x.shape[1], color='r')
     axs[1].axvline(x=x.shape[1], color='r')
+
+
+def plot_serie_and_prediction(x, y, predictedY, serie_indx = 0):
+    fig, axs = plt.subplots(1, 1, figsize=(40, 20))
+    
+    true_series_time_axes = np.arange(0, x.shape[1] + y.shape[1] )
+    predicted_series_time_axes= np.arange(x.shape[1], x.shape[1] + y.shape[1])
+    
+    true_series_value_axes = np.concatenate( (x, y), axis = 1)
+    
+    axs.plot(true_series_time_axes, true_series_value_axes[serie_indx,:], color='b')
+    axs.plot(predicted_series_time_axes, predictedY[serie_indx,:], color='r')
+        
+    axs.set_title('True Values & Point Predictions')
+    axs.set_xlabel('Time')
+    axs.set_ylabel('Value')
+    axs.axvline(x=x.shape[1], color='g')
