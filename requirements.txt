@@ -62,7 +62,7 @@ pytest-cov==2.8.1
 python-dateutil==2.8.1
 pytz==2019.3
 PyWavelets==1.1.1
-requests==2.18.4
+requests==2.20.0
 ruamel-yaml==0.15.46
 scikit-image==0.15.0
 scikit-learn==0.21.3
