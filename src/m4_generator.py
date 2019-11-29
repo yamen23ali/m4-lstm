@@ -74,7 +74,7 @@ class M4Generator(Sequence):
         
         standarized_train_data, standarized_test_data = self.__standarize(raw_train_data, raw_test_data)
         
-        self.train_x, self.train_y  = self.__build_train_data(standarized_train_data)
+        self.train_x, self.train_y  = self.__build_train_data(raw_train_data)
         self.test_x, self.test_y  = self.__build_test_data(standarized_train_data, standarized_test_data)
 
     def __len__(self):
