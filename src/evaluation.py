@@ -23,13 +23,13 @@ def reshape_data_in_batches(X, Y, batch_size):
 
 def evaluate_model(model, X, Y, error_function):
     
-    batch_size = model.layers[0].input_shape[0]
-    X,Y = reshape_data_in_batches(X, Y, batch_size)
+    X,Y = reshape_data_in_batches(X, Y, model.batch_size)
     
     errors = []
     
     for x_batch, y_batch in zip(X, Y):
-        errors.append(error_function(x_batch, y_batch))
+        predictedY = model.predict(x_batch)
+        errors.append(error_function(x_batch[:,:,0], predictedY))
         
     return np.mean(errors)
 

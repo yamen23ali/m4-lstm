@@ -42,3 +42,16 @@ model = M4Model(hidden_layer_size=HIDDEN_LAYER_SIZE, batch_size=BATCH_SIZE, look
 hist = model.train(gen, epochs=EPOCHS)
 
 model.save(f'models/{model_name}.json', f'models/{model_name}.h5')
+
+#=================== Evaluate Model
+train_x, train_y, test_x, test_y = gen.get_data()
+
+train_error = evaluate_model(model, train_x, train_y, smapetf)
+test_error = evaluate_model(model, test_x, test_y, smapetf)
+
+with open(f'models/{model_name}.txt', 'a') as file:
+    file.write(f'Training Error: {train_error}\n')
+    file.write(f'Test Error: {test_error}')
+
+
+

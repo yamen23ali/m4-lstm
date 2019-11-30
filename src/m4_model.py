@@ -14,6 +14,8 @@ class M4Model(object):
     def __init__(self, hidden_layer_size=100, batch_size=50, lookback=48, 
         horizon=48, learning_rate=0.001, loss='mae'):
 
+        self.batch_size = batch_size
+
         self.model = Sequential()
 
         self.model.add(LSTM(hidden_layer_size, batch_input_shape=(batch_size, lookback, 1),  return_sequences=True, activation='tanh',
@@ -36,6 +38,9 @@ class M4Model(object):
     def train(self, data_generator, epochs):
         hist = self.model.fit_generator(data_generator, steps_per_epoch= data_generator.__len__(), epochs=epochs)
         return hist
+
+    def predict(self, X):
+        return self.model.predict(X, batch_size = self.batch_size)
 
     def load(self, model_json_path, model_weights_path):
         # load json and create model
