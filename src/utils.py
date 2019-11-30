@@ -1,11 +1,10 @@
 import pandas as pd
 import numpy as np
 
-from tensorflow.python.keras.utils import Sequence
 from sklearn.preprocessing import StandardScaler
 from statsmodels.tsa.holtwinters import  ExponentialSmoothing
 from statsmodels.tsa.seasonal import seasonal_decompose
-from keras.models import model_from_json
+
 
 def get_top_autcorr(data_frame, max_lag = 500, highest_corr = 10):
     lag_corr = []
@@ -19,31 +18,6 @@ def get_top_autcorr(data_frame, max_lag = 500, highest_corr = 10):
     correlations = np.array(lag_corr)    
     highest_correlations_ind = np.flip(correlations.argsort()[-highest_corr:])
     return correlations[highest_correlations_ind], highest_correlations_ind
-
-
-def load_model(model_json_path, model_weights_path):
-    
-    # load json and create model
-    json_file = open(model_json_path, 'r')
-    model_json = json_file.read()
-    json_file.close()
-    model = model_from_json(model_json)
-    
-    # load weights into new model
-    model.load_weights(model_weights_path)
-    print("Loaded model from disk")
-    
-    return model
-
-def save_model(model, model_json_path, model_weights_path):
-    # serialize model to JSON
-    model_json = model.to_json()
-    with open(model_json_path, "w") as json_file:
-        json_file.write(model_json)
-    
-    # serialize weights to HDF5
-    model.save_weights(model_weights_path)
-    print("Saved model to disk")
 
 def decompose_time_serie(data):
     serie_range = pd.date_range(freq="h", start=0, periods=data.shape[0])
