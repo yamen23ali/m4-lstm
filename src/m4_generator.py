@@ -1,7 +1,9 @@
-from tensorflow.python.keras.utils import Sequence
-from sklearn.preprocessing import StandardScaler
 import pandas as pd
 import numpy as np   
+
+from tensorflow.python.keras.utils import Sequence
+from sklearn.preprocessing import StandardScaler
+from tensorflow.keras import backend as K
 
 class M4Generator(Sequence):
 
@@ -14,6 +16,9 @@ class M4Generator(Sequence):
         self.__load_data(train_data_path, test_data_path)
     
     def __read_raw_data(self, file_path):
+        #float_cols = [c for c in df_test if df_test[c].dtype == "float64"]
+        #float32_cols = {c: np.float32 for c in float_cols}
+        
         df = pd.read_csv(file_path)
         del df['V1']
         return df.values
