@@ -21,8 +21,8 @@ class M4Model(object):
         self.model.add(LSTM(hidden_layer_size, batch_input_shape=(batch_size, lookback, 1),  return_sequences=True, activation='tanh',
               kernel_initializer=keras.initializers.RandomNormal(mean=0.0, stddev=0.2)))
 
-        self.model.add(LSTM(hidden_layer_size, batch_input_shape=(batch_size, lookback,1), return_sequences=True, activation='tanh',
-              kernel_initializer=keras.initializers.RandomNormal(mean=0.0, stddev=0.2)))
+        #self.model.add(LSTM(hidden_layer_size, batch_input_shape=(batch_size, lookback,1), return_sequences=True, activation='tanh',
+        #      kernel_initializer=keras.initializers.RandomNormal(mean=0.0, stddev=0.2)))
 
         self.model.add(LSTM(hidden_layer_size, batch_input_shape=(batch_size, lookback,1),  activation='tanh',
               kernel_initializer=keras.initializers.RandomNormal(mean=0.0, stddev=0.2)))
