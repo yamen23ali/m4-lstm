@@ -1,5 +1,5 @@
 import sys
-sys.path.append('../src')
+sys.path.append('src')
 
 import numpy as np
 import argparse, sys
@@ -33,7 +33,7 @@ HIDDEN_LAYER_SIZE = int(args.HIDDEN_LAYER_SIZE)
 
 model_name = f'LSTM_E{EPOCHS}_B{BATCH_SIZE}_H{HIDDEN_LAYER_SIZE}_L{LOOKBACK}'
 
-gen = M4Generator("../Dataset/Train/Hourly-train.csv", "../Dataset/Test/Hourly-test.csv",
+gen = M4Generator("Dataset/Train/Hourly-train.csv", "Dataset/Test/Hourly-test.csv",
                   LOOKBACK, HORIZON, BATCH_SIZE)
 
 model = M4Model(hidden_layer_size=HIDDEN_LAYER_SIZE, batch_size=BATCH_SIZE, lookback=LOOKBACK, 
