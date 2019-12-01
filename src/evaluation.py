@@ -29,7 +29,7 @@ def evaluate_model(model, X, Y, error_function):
     
     for x_batch, y_batch in zip(X, Y):
         predictedY = model.predict(x_batch)
-        errors.append(error_function(x_batch[:,:,0], predictedY))
+        errors.append(error_function(y_batch[:,:,0], predictedY))
         
     return np.mean(errors)
 
