@@ -4,6 +4,7 @@ import sys
 import numpy as np
 import argparse, sys
 import src.error_functions as ef
+import keras
 
 from src.m4_generator import M4Generator
 from src.error_functions import *
@@ -11,6 +12,8 @@ from src.visualization import *
 from src.evaluation import evaluate_model
 from src.m4_model import M4Model
 
+#============= Prepare 
+keras.backend.set_floatx('float64')
 
 #============= Get and Parse Arguments
 
@@ -43,9 +46,6 @@ except Exception as e:
 
 
 #=============== Define and Train Model
-
-model_name = f'LSTM_E{EPOCHS}_B{BATCH_SIZE}_H{HIDDEN_LAYER_SIZE}_L{LOOKBACK}'
-
 gen = M4Generator("Dataset/Train/Hourly-train.csv", "Dataset/Test/Hourly-test.csv",
                   LOOKBACK, HORIZON, BATCH_SIZE)
 
@@ -53,6 +53,8 @@ model = M4Model(hidden_layer_size=HIDDEN_LAYER_SIZE, batch_size=BATCH_SIZE, look
         horizon=HORIZON, loss=LOSS_FUNCTION, dropout_ratio=DROPOUT_RATIO)
 
 hist = model.train(gen, epochs=EPOCHS)
+
+model_name = f'LSTM_E{EPOCHS}_B{BATCH_SIZE}_H{HIDDEN_LAYER_SIZE}_L{LOOKBACK}_ERR{args.LOSS_FUNCTION}_D{DROPOUT_RATIO}'
 
 model.save(f'models/{model_name}.json', f'models/{model_name}.h5')
 

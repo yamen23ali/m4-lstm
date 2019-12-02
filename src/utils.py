@@ -1,6 +1,8 @@
 import pandas as pd
 import numpy as np
+import os
 
+from glob import glob
 from sklearn.preprocessing import StandardScaler
 from statsmodels.tsa.holtwinters import  ExponentialSmoothing
 from statsmodels.tsa.seasonal import seasonal_decompose
@@ -18,6 +20,14 @@ def get_top_autcorr(data_frame, max_lag = 500, highest_corr = 10):
     correlations = np.array(lag_corr)    
     highest_correlations_ind = np.flip(correlations.argsort()[-highest_corr:])
     return correlations[highest_correlations_ind], highest_correlations_ind
+
+def create_model_dir():
+    current_dirs = glob("../models/*")
+    last_dir = int( current_dirs[-1].split('/')[1] )
+    model_dir = f'../models/{last_dir + 1}'
+    os.mkdir(model_dir)
+
+    return model_dir
 
 def decompose_time_serie(data):
     serie_range = pd.date_range(freq="h", start=0, periods=data.shape[0])

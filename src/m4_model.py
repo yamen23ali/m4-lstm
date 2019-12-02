@@ -1,6 +1,8 @@
 import keras
 import tensorflow as tf
 
+from src.utils import create_model_dir
+
 from keras.models import Sequential
 from keras.layers import Dense
 from keras.layers import LSTM
@@ -18,11 +20,15 @@ class M4Model(object):
     def __init__(self, hidden_layer_size=100, batch_size=50, lookback=48, 
         horizon=48, learning_rate=0.001, loss='mae', dropout_ratio=0.0):
 
+        self.hidden_layer_size = hidden_layer_size
         self.batch_size = batch_size
+        self.lookback = lookback
+        self.horizon = horizon
+        self.learning_rate = learning_rate
         self.loss = loss
+        self.dropout_ratio = dropout_ratio
 
         self.model = Sequential()
-
 
         self.model.add(LSTM(hidden_layer_size, batch_input_shape=(batch_size, lookback,1), return_sequences=True, activation='tanh',
               kernel_initializer=keras.initializers.RandomNormal(mean=0.0, stddev=0.2), recurrent_dropout=dropout_ratio))
@@ -38,11 +44,26 @@ class M4Model(object):
 
         self.model.compile(loss=self.loss, optimizer=self.opt)
 
+    def __get_hyper_parameters_dict__(self):
+        loss_name = self.loss
+
+        if not isinstance(self.loss, str):
+            loss_name = self.loss.func_name
+        
+        return {
+            'epochs': self.epochs,
+            'batch_size': self.batch_size,
+            'hidden_layer_size': self.hidden_layer_size,
+            'lookback': self.lookback, 
+            'loss': loss_name,
+            'dropout_ratio': slef.dropout_ratio
+        }
 
     def compile(self):
         self.model.compile(loss=self.loss, optimizer=self.opt)
 
     def train(self, data_generator, epochs):
+        self.epochs = epochs
         hist = self.model.fit_generator(data_generator, steps_per_epoch= data_generator.__len__(), epochs=epochs)
         return hist
 
@@ -60,7 +81,13 @@ class M4Model(object):
         self.model.load_weights(model_weights_path)
         print("Loaded model from disk")
 
-    def save(self, model_json_path, model_weights_path):
+    def save(self):
+        model_dir = create_model_dir()
+        model_json_path = f'{model_dir}/architecture.json'
+        model_weights_path = f'{model_dir}/weights.h5'
+        model_hyperparameters_path = f'{model_dir}/hyperparameters.json'
+
+
         # serialize model to JSON
         model_json = self.model.to_json()
         with open(model_json_path, "w") as json_file:
@@ -68,5 +95,10 @@ class M4Model(object):
 
         # serialize weights to HDF5
         self.model.save_weights(model_weights_path)
+
+        # save model hyperparameters
+        with open(model_hyperparameters_path, 'w') as file:
+            json.dump(self.__get_hyper_parameters_dict__(), file)
+        
         print("Saved model to disk")
     
