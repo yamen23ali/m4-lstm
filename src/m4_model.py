@@ -1,5 +1,6 @@
 import keras
 import tensorflow as tf
+import json
 
 from src.utils import create_model_dir
 
@@ -13,9 +14,6 @@ from keras.models import model_from_json
 
 
 class M4Model(object):
-
-    def __init__():
-        pass
 
     def __init__(self, hidden_layer_size=100, batch_size=50, lookback=48, 
         horizon=48, learning_rate=0.001, loss='mae', dropout_ratio=0.0):
@@ -44,11 +42,11 @@ class M4Model(object):
 
         self.model.compile(loss=self.loss, optimizer=self.opt)
 
-    def __get_hyper_parameters_dict__(self):
+    def __get_hyper_parameters_dict(self):
         loss_name = self.loss
 
         if not isinstance(self.loss, str):
-            loss_name = self.loss.func_name
+            loss_name = self.loss.__name__
         
         return {
             'epochs': self.epochs,
@@ -56,7 +54,7 @@ class M4Model(object):
             'hidden_layer_size': self.hidden_layer_size,
             'lookback': self.lookback, 
             'loss': loss_name,
-            'dropout_ratio': slef.dropout_ratio
+            'dropout_ratio': self.dropout_ratio
         }
 
     def compile(self):
@@ -98,7 +96,8 @@ class M4Model(object):
 
         # save model hyperparameters
         with open(model_hyperparameters_path, 'w') as file:
-            json.dump(self.__get_hyper_parameters_dict__(), file)
+            hp = self.__get_hyper_parameters_dict()
+            json.dump(hp, file)
         
-        print("Saved model to disk")
+        print(f'Saved model files to disk under{model_dir}')
     
