@@ -21,10 +21,14 @@ def get_top_autcorr(data_frame, max_lag = 500, highest_corr = 10):
     highest_correlations_ind = np.flip(correlations.argsort()[-highest_corr:])
     return correlations[highest_correlations_ind], highest_correlations_ind
 
-def create_model_dir():
-    models_numbers =[ int(dir_name.split('/')[-1]) for dir_name in glob("../models/*")]
+def create_model_dir(base_dir):
+
+    models_numbers =[ int(dir_name.split('/')[-1]) for dir_name in glob(f'{base_dir}/*')]
     models_numbers.sort()
-    model_dir = f'../models/{models_numbers[-1] + 1}'
+    
+    if len(models_numbers) == 0: models_numbers = [1] 
+
+    model_dir = f'{base_dir}/{models_numbers[-1] + 1}'
     os.mkdir(model_dir)
 
     return model_dir

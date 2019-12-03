@@ -6,6 +6,7 @@ import argparse, sys
 import src.error_functions as ef
 import keras
 
+from src.m4_data_loader import M4DataLoader
 from src.m4_generator import M4Generator
 from src.error_functions import *
 from src.visualization import *
@@ -45,28 +46,28 @@ except Exception as e:
 	print('Not defined in our loss functions, hopefully Keras has it !')
 
 
+#=============== Load Data
+data_loader = M4DataLoader("Dataset/Train/Hourly-train.csv", "Dataset/Test/Hourly-test.csv",
+                  LOOKBACK, HORIZON, validation_ratio=0.05)
+
+train_x, train_y = data_loader.get_training_data()
+training_data_generator = M4Generator(train_x, train_y, BATCH_SIZE)
+
+test_x, test_y = data_loader.get_test_data()
+test_data_generator = M4Generator(test_x, test_y, BATCH_SIZE)
+
+validate_x, validate_y = data_loader.get_validation_data()
+validation_data_generator = M4Generator(validate_x, validate_y, BATCH_SIZE)
+
 #=============== Define and Train Model
-gen = M4Generator("Dataset/Train/Hourly-train.csv", "Dataset/Test/Hourly-test.csv",
-                  LOOKBACK, HORIZON, BATCH_SIZE)
 
 model = M4Model(hidden_layer_size=HIDDEN_LAYER_SIZE, batch_size=BATCH_SIZE, lookback=LOOKBACK, 
         horizon=HORIZON, loss=LOSS_FUNCTION, dropout_ratio=DROPOUT_RATIO)
 
-hist = model.train(gen, epochs=EPOCHS)
+model.train(training_data_generator, test_data_generator, epochs=EPOCHS)
 
-model_name = f'LSTM_E{EPOCHS}_B{BATCH_SIZE}_H{HIDDEN_LAYER_SIZE}_L{LOOKBACK}_ERR{args.LOSS_FUNCTION}_D{DROPOUT_RATIO}'
+evaluation_loss = model.evaluate(validation_data_generator)
 
-model.save(f'models/{model_name}.json', f'models/{model_name}.h5')
+print(f'Evaluation loss is : {evaluation_loss}')
 
-#=================== Evaluate Model
-#train_x, train_y, test_x, test_y = gen.get_data()
-
-#train_error = evaluate_model(model, train_x, train_y, smapetf)
-#test_error = evaluate_model(model, test_x, test_y, smapetf)
-
-#with open(f'models/{model_name}.txt', 'a') as file:
-#    file.write(f'Training Error: {train_error}\n')
-#    file.write(f'Test Error: {test_error}')
-
-
-
+model.save('models')
