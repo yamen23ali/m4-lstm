@@ -1,11 +1,11 @@
 import sys
-sys.path.append('../src')
+#sys.path.append('../src')
 
 import numpy as np
 import keras
 import tensorflow as tf
 
-from error_functions import *
+from .error_functions import *
 from keras.models import model_from_json
 
 def reshape_data_in_batches(X, Y, batch_size):
