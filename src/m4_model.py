@@ -28,8 +28,8 @@ class M4Model(object):
 
         self.model = Sequential()
 
-        self.model.add(LSTM(hidden_layer_size, batch_input_shape=(batch_size, lookback,1), return_sequences=True, activation='tanh',
-              kernel_initializer=keras.initializers.RandomNormal(mean=0.0, stddev=0.2), recurrent_dropout=dropout_ratio))
+       # self.model.add(LSTM(hidden_layer_size, batch_input_shape=(batch_size, lookback,1), return_sequences=True, activation='tanh',
+        #      kernel_initializer=keras.initializers.RandomNormal(mean=0.0, stddev=0.2), recurrent_dropout=dropout_ratio))
 
         self.model.add(LSTM(hidden_layer_size, batch_input_shape=(batch_size, lookback,1),  activation='tanh',
               kernel_initializer=keras.initializers.RandomNormal(mean=0.0, stddev=0.2), recurrent_dropout=dropout_ratio))
@@ -60,13 +60,20 @@ class M4Model(object):
     def compile(self):
         self.model.compile(loss=self.loss, optimizer=self.opt)
 
-    def train(self, data_generator, epochs):
+    def train(self, training_data_generator, test_data_generator, epochs):
         self.epochs = epochs
-        hist = self.model.fit_generator(data_generator, steps_per_epoch= data_generator.__len__(), epochs=epochs)
-        return hist
+
+        return self.model.fit_generator(training_data_generator,
+            validation_data = test_data_generator,
+            validation_steps=test_data_generator.steps_per_epoch(),
+            steps_per_epoch=training_data_generator.steps_per_epoch(), 
+            epochs=epochs)
 
     def predict(self, X):
         return self.model.predict(X, batch_size = self.batch_size)
+
+    def evaluate(self, validation_data_generator):
+        return self.model.evaluate(validation_data_generator)
 
     def load(self, model_json_path, model_weights_path):
         # load json and create model
@@ -79,8 +86,8 @@ class M4Model(object):
         self.model.load_weights(model_weights_path)
         print("Loaded model from disk")
 
-    def save(self):
-        model_dir = create_model_dir()
+    def save(self, base_dir):
+        model_dir = create_model_dir(base_dir)
         model_json_path = f'{model_dir}/architecture.json'
         model_weights_path = f'{model_dir}/weights.h5'
         model_hyperparameters_path = f'{model_dir}/hyperparameters.json'
