@@ -1,0 +1,1 @@
+{"epochs": 500, "batch_size": 50, "hidden_layers": 200, "look_back": 48, "loss": "smapetf", "dropout": 0.5}
