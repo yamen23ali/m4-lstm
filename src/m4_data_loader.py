@@ -31,7 +31,7 @@ class M4DataLoader(object):
 
         return scaler.transform(full_data)
     
-    def __build_augmented_data(self, train_data):
+    def __build_from_series(self, train_data):
         
         data_x =  np.empty(shape=[0, self.lookback])
         data_y =  np.empty(shape=[0, self.horizon])
@@ -82,20 +82,31 @@ class M4DataLoader(object):
         self.train_serie_length = raw_train_data.shape[1]
         self.test_serie_length = raw_test_data.shape[1]
 
+    def __augment_diff(self, data):
+        shifted_data = np.hstack((data[:,1:], data[:,-1][:,np.newaxis]))
+        diff = shifted_data - data
+        return np.dstack((data, diff))
 
     def get_training_data(self):
-        return self.__build_augmented_data(self.train_test_data[:,:self.train_serie_length])
+        X, Y = self.__build_from_series(self.train_test_data[:,:self.train_serie_length])
+        
+        return self.__augment_diff(X), self.__augment_diff(Y)
         
 
     def get_test_data(self):
-        return self.__build_from_series_pairs(self.train_test_data[:,:self.train_serie_length],
+        X, Y = self.__build_from_series_pairs(self.train_test_data[:,:self.train_serie_length],
             self.train_test_data[:,-self.test_serie_length:])
 
+        return self.__augment_diff(X), self.__augment_diff(Y)
+
     def get_validation_data(self):
-        X1, Y1 = self.__build_augmented_data(self.validation_data[:,:self.train_serie_length])
+        X1, Y1 = self.__build_from_series(self.validation_data[:,:self.train_serie_length])
         X2, Y2 = self.__build_from_series_pairs(self.validation_data[:,:self.train_serie_length],
             self.validation_data[:,-self.test_serie_length:])
+        
+        X = np.concatenate((X1, X2), axis=0)
+        Y = np.concatenate((Y1, Y2), axis=0)
 
-        return np.concatenate((X1, X2), axis=0), np.concatenate((Y1, Y2), axis=0)
+        return self.__augment_diff(X), self.__augment_diff(Y)
 
     

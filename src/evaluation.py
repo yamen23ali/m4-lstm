@@ -33,3 +33,23 @@ def evaluate_model(model, X, Y, error_function):
         
     return np.mean(errors)
 
+
+def evaluate_combined_model(data_model, diff_model, X, Y, error_function):
+    
+    X_data,Y_data = reshape_data_in_batches(X[:,:,0], Y[:,:,0], model.batch_size)
+    X_diff,Y_diff = reshape_data_in_batches(X[:,:,1], Y[:,:,1], model.batch_size)
+    
+    errors = []
+    
+    for x_data_batch, y_data_batch, x_diff_batch, y_diff_batch in zip(X_data, Y_data, X_diff, Y_diff):
+        predictedData = data_model.predict(x_data_batch)
+        predictedDiff = diff_model.predict(x_diff_batch)
+        combinedPred = predictedData + predictedDiff
+        combinedPred = combinedPred[:,:-1]
+        combinedPred = np.hstack((predictedData[:,0][:,np.newaxis], combinedPred))
+        final_pred = (predictedData + combinedPred)/2
+
+        errors.append(error_function(y_data_batch[:,:,0], final_pred))
+        
+    return np.mean(errors)
+
