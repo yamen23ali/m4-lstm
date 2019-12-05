@@ -1,6 +1,8 @@
 import pandas as pd
 import numpy as np   
 
+from src.utils import read_raw_data
+
 from tensorflow.python.keras.utils import Sequence
 from sklearn.preprocessing import StandardScaler
 from tensorflow.keras import backend as K
@@ -15,21 +17,16 @@ class M4DataLoader(object):
         
         self.__load_data(train_data_path, test_data_path)
     
-    def __read_raw_data(self, file_path):
-
-        df = pd.read_csv(file_path)
-        del df['V1']
-        return df.values
     
     def __merge_and_standarize(self,raw_train_data, raw_test_data):
         
         # Join train and test to standarize together
-        full_data = np.concatenate((raw_train_data, raw_test_data), axis=1)
+        complete_data = np.concatenate((raw_train_data, raw_test_data), axis=1).T
         
         scaler = StandardScaler()
-        scaler.fit(full_data)
+        scaler.fit(complete_data)
 
-        return scaler.transform(full_data)
+        return scaler.transform(complete_data).T
     
     def __build_augmented_data(self, train_data):
         
@@ -70,14 +67,14 @@ class M4DataLoader(object):
     
     def __load_data(self, train_data_path, test_data_path):
         
-        raw_train_data = self.__read_raw_data(train_data_path)
-        raw_test_data = self.__read_raw_data(test_data_path)
-        full_data = self.__merge_and_standarize(raw_train_data, raw_test_data)
+        raw_train_data = read_raw_data(train_data_path)
+        raw_test_data = read_raw_data(test_data_path)
+        complete_data = self.__merge_and_standarize(raw_train_data, raw_test_data)
 
-        validation_data_size = int (full_data.shape[0]*self.validation_ratio)
+        validation_data_size = int (complete_data.shape[0]*self.validation_ratio)
 
-        self.train_test_data = full_data[:-validation_data_size,:]
-        self.validation_data = full_data[-validation_data_size:,:]
+        self.train_test_data = complete_data[:-validation_data_size,:]
+        self.validation_data = complete_data[-validation_data_size:,:]
 
         self.train_serie_length = raw_train_data.shape[1]
         self.test_serie_length = raw_test_data.shape[1]

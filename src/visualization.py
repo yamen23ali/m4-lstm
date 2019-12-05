@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
+from .utils import read_raw_data
 
 def plot_series(x, y, predictedY, series_num = 3):
     fig, axs = plt.subplots(1, 2, figsize=(20, 10))
@@ -40,4 +41,20 @@ def plot_serie_and_prediction(x, y, predictedY, serie_indx = 0):
     axs.set_ylabel('Value', fontsize=20)    
     axs.set_title('True Values & Point Predictions', fontsize=20)
     axs.legend(['True Serie', 'Predicted Serie'], prop={'size': 30})
+
+def plot_m4_complete_series(training_file_path, test_file_path):
+
+    training_data = read_raw_data(training_file_path)
+    test_data = read_raw_data(test_file_path)
+    
+    for x, y in zip(training_data, test_data):
+        x = x[~np.isnan(x), np.newaxis]
+        ts = np.vstack((x, y[:,np.newaxis]))
+        time = np.arange(0, ts.shape[0])
+
+        fig, axs = plt.subplots(1, 1, figsize=(40, 20))
+        
+        axs.plot(time, ts, color='b')
+        axs.axvline(x=48, color='g')
+        plt.show()
 

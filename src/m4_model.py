@@ -12,7 +12,6 @@ from keras import optimizers
 from keras.models import model_from_json
 
 
-
 class M4Model(object):
 
     def __init__(self, hidden_layer_size=100, batch_size=50, lookback=48, 
@@ -28,8 +27,8 @@ class M4Model(object):
 
         self.model = Sequential()
 
-       # self.model.add(LSTM(hidden_layer_size, batch_input_shape=(batch_size, lookback,1), return_sequences=True, activation='tanh',
-        #      kernel_initializer=keras.initializers.RandomNormal(mean=0.0, stddev=0.2), recurrent_dropout=dropout_ratio))
+        self.model.add(LSTM(hidden_layer_size, batch_input_shape=(batch_size, lookback,1), return_sequences=True, activation='tanh',
+             kernel_initializer=keras.initializers.RandomNormal(mean=0.0, stddev=0.2), recurrent_dropout=dropout_ratio))
 
         self.model.add(LSTM(hidden_layer_size, batch_input_shape=(batch_size, lookback,1),  activation='tanh',
               kernel_initializer=keras.initializers.RandomNormal(mean=0.0, stddev=0.2), recurrent_dropout=dropout_ratio))
