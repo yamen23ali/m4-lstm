@@ -1,6 +1,13 @@
 import tensorflow as tf
 import numpy as np
 
+def naive_error(yTrue):
+	return tf.reduce_mean(tf.abs(yTrue[:,1:] - yTrue[:,:-1]), axis=1)
+
+def mase(yTrue, yPred):
+	naive_err = naive_error(yTrue)
+	return tf.abs(yTrue - yPred) / naive_err[:,np.newaxis]
+
 def mae(yTrue, yPred):
 	return tf.reduce_mean(tf.abs(yTrue - yPred), axis=1)
 

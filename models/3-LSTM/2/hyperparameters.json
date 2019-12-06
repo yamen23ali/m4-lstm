@@ -1,0 +1,1 @@
+{"epochs": 100, "batch_size": 50, "hidden_layer_size": 50, "lookback": 48, "loss": "mae", "dropout_ratio": 0.3, "features_number": 1, "output_size": 48}

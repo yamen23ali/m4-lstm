@@ -15,7 +15,7 @@ from keras.models import model_from_json
 class M4Model(object):
 
     def __init__(self, hidden_layer_size=100, batch_size=50, lookback=48, 
-        horizon=48, learning_rate=0.001, loss='mae', dropout_ratio=0.0):
+        output_size=48, learning_rate=0.001, loss='mae', dropout_ratio=0.0, features_number = 1):
 
         self.architecture_file_name = 'architecture.json'
         self.weights_file_name = 'weights.h5'
@@ -24,20 +24,25 @@ class M4Model(object):
         self.hidden_layer_size = hidden_layer_size
         self.batch_size = batch_size
         self.lookback = lookback
-        self.horizon = horizon
+        self.output_size = output_size
         self.learning_rate = learning_rate
         self.loss = loss
         self.dropout_ratio = dropout_ratio
+        self.features_number = features_number
 
         self.model = Sequential()
 
-        self.model.add(LSTM(hidden_layer_size, batch_input_shape=(batch_size, lookback,1), return_sequences=True, activation='tanh',
-             kernel_initializer=keras.initializers.RandomNormal(mean=0.0, stddev=0.2), recurrent_dropout=dropout_ratio))
 
-        self.model.add(LSTM(hidden_layer_size, batch_input_shape=(batch_size, lookback,1),  activation='tanh',
+        #self.model.add(LSTM(hidden_layer_size, batch_input_shape=(batch_size, lookback, features_number), return_sequences=True, activation='tanh',
+        #     kernel_initializer=keras.initializers.RandomNormal(mean=0.0, stddev=0.2), recurrent_dropout=dropout_ratio))
+
+        #self.model.add(LSTM(hidden_layer_size, batch_input_shape=(batch_size, lookback,features_number), return_sequences=True, activation='tanh',
+        #     kernel_initializer=keras.initializers.RandomNormal(mean=0.0, stddev=0.2), recurrent_dropout=dropout_ratio))
+
+        self.model.add(LSTM(hidden_layer_size, batch_input_shape=(batch_size, lookback,features_number),  activation='tanh',
               kernel_initializer=keras.initializers.RandomNormal(mean=0.0, stddev=0.2), recurrent_dropout=dropout_ratio))
 
-        self.model.add(Dense(horizon, activation='linear',
+        self.model.add(Dense(output_size, activation='linear',
                 kernel_initializer=keras.initializers.RandomNormal(mean=0.0, stddev=0.3)))
 
         self.opt = optimizers.RMSprop(lr=learning_rate)#, clipvalue=0.3)
@@ -57,7 +62,9 @@ class M4Model(object):
             'hidden_layer_size': self.hidden_layer_size,
             'lookback': self.lookback, 
             'loss': loss_name,
-            'dropout_ratio': self.dropout_ratio
+            'dropout_ratio': self.dropout_ratio,
+            'features_number': self.features_number,
+            'output_size': self.output_size
         }
 
     def compile(self):
