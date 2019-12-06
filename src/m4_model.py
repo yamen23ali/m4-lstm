@@ -17,6 +17,10 @@ class M4Model(object):
     def __init__(self, hidden_layer_size=100, batch_size=50, lookback=48, 
         horizon=48, learning_rate=0.001, loss='mae', dropout_ratio=0.0):
 
+        self.architecture_file_name = 'architecture.json'
+        self.weights_file_name = 'weights.h5'
+        self.hyperparameters_file_name = 'hyperparameters.json'
+
         self.hidden_layer_size = hidden_layer_size
         self.batch_size = batch_size
         self.lookback = lookback
@@ -74,23 +78,29 @@ class M4Model(object):
     def evaluate(self, validation_data_generator):
         return self.model.evaluate(validation_data_generator)
 
-    def load(self, model_json_path, model_weights_path):
+    def load(self, model_dir):
+        model_json_path = f'{model_dir}/{self.architecture_file_name}'
+        model_weights_path = f'{model_dir}/{self.weights_file_name}'
+        model_hyperparameters_path = f'{model_dir}/{self.hyperparameters_file_name}'
+
         # load json and create model
-        json_file = open(model_json_path, 'r')
-        model_json = json_file.read()
-        json_file.close()
-        self.model = model_from_json(model_json)
+        with open(model_json_path, "r") as json_file:
+            model_json = json_file.read()
+            self.model = model_from_json(model_json)
 
         # load weights into new model
         self.model.load_weights(model_weights_path)
         print("Loaded model from disk")
 
+        # load and return hyperparameters
+        with open(model_hyperparameters_path, "r") as json_file:
+            return json.loads(json_file.read())
+
     def save(self, base_dir):
         model_dir = create_model_dir(base_dir)
-        model_json_path = f'{model_dir}/architecture.json'
-        model_weights_path = f'{model_dir}/weights.h5'
-        model_hyperparameters_path = f'{model_dir}/hyperparameters.json'
-
+        model_json_path = f'{model_dir}/{self.architecture_file_name}'
+        model_weights_path = f'{model_dir}/{self.weights_file_name}'
+        model_hyperparameters_path = f'{model_dir}/{self.hyperparameters_file_name}'
 
         # serialize model to JSON
         model_json = self.model.to_json()

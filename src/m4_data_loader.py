@@ -9,7 +9,7 @@ from tensorflow.keras import backend as K
 
 class M4DataLoader(object):
 
-    def __init__(self, train_data_path, test_data_path, lookback=48, horizon=48, validation_ratio = 0.10):
+    def __init__(self, train_data_path, test_data_path, lookback=48, horizon=48, validation_ratio = 0.05):
         
         self.validation_ratio = validation_ratio
         self.lookback = lookback
