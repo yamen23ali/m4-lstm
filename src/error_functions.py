@@ -6,7 +6,7 @@ def naive_error(yTrue):
 
 def mase(yTrue, yPred):
 	naive_err = naive_error(yTrue)
-	return tf.abs(yTrue - yPred) / naive_err[:,np.newaxis]
+	return mae(yTrue, yPred)[:,np.newaxis] / naive_err[:,np.newaxis]
 
 def mae(yTrue, yPred):
 	return tf.reduce_mean(tf.abs(yTrue - yPred), axis=1)

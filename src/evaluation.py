@@ -38,8 +38,8 @@ def reshape_data_in_batches(X, Y, batch_size):
     X = np.concatenate((X, X[:missing_samples,:]), axis=0)
     Y = np.concatenate((Y, Y[:missing_samples,:]), axis=0)
 
-    X = X.reshape(-1,batch_size, X.shape[1], 1)
-    Y = Y.reshape(-1,batch_size, Y.shape[1],1)
+    X = X.reshape(-1,batch_size, X.shape[1], X.shape[2])
+    Y = Y.reshape(-1,batch_size, Y.shape[1], 1)
     
     return X, Y
 
@@ -83,10 +83,13 @@ def sort_by_prediction_error(model, X, Y, error_function):
 
         predictions = np.concatenate((predictions, batch_predictions), axis = 0)
 
-        batch_errors = error_function(batch_y[:,:,0], batch_predictions)
+        batch_errors = error_function(batch_y[:,:48,0], batch_predictions[:,:48])
 
         errors = np.append(errors, batch_errors)
-        
+
+    X = X[:,:,:,0]
+    Y = Y[:,:,:48]
+
     X = X.reshape(-1, X.shape[2])
     Y = Y.reshape(-1, Y.shape[2])
     
