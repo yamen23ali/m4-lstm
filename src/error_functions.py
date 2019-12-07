@@ -6,13 +6,13 @@ def naive_error(yTrue):
 
 def mase(yTrue, yPred):
 	naive_err = naive_error(yTrue)
-	return tf.abs(yTrue - yPred) / naive_err[:,np.newaxis]
+	return mae(yTrue, yPred)[:,np.newaxis] / naive_err[:,np.newaxis]
 
 def mae(yTrue, yPred):
 	return tf.reduce_mean(tf.abs(yTrue - yPred), axis=1)
 
 def rmse(yTrue, yPred):
-	return tf.sqrt( tf.reduce_mean(tf.square(yTrue - yPred)), axis=1)
+	return tf.sqrt( tf.reduce_mean(tf.square(yTrue - yPred), axis=1))
 
 def smape(yTrue, yPred):
     ratio = tf.abs(yTrue - yPred) / (tf.abs(yTrue) + tf.abs(yPred))

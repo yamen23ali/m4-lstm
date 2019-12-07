@@ -20,7 +20,7 @@ class M4Generator(Sequence):
         batch_x = self.X[idx * self.batch_size:(idx + 1) * self.batch_size, :]
         batch_y = self.Y[idx * self.batch_size:(idx + 1) * self.batch_size, :]
         
-        return np.array(batch_x)[:,:,np.newaxis], np.array(batch_y)[:,:]
+        return np.array(batch_x)[:,:,:], np.array(batch_y)[:,:]
 
     def steps_per_epoch(self):
         return self.__len__()
