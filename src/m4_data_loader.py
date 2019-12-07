@@ -103,6 +103,7 @@ class M4DataLoader(object):
             self.train_test_data[:,-self.test_serie_length:])
 
         return self.__augment_diff_x(X), self.__augment_diff_y(Y)
+        #return X, Y
 
     def get_validation_data(self):
         X1, Y1 = self.__build_from_series(self.validation_data[:,:self.train_serie_length])
@@ -113,4 +114,5 @@ class M4DataLoader(object):
         Y = np.concatenate((Y1, Y2), axis=0)
 
         return self.__augment_diff_x(X), self.__augment_diff_y(Y)
+        #return X, Y
 

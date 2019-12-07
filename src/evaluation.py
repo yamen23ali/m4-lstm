@@ -95,6 +95,7 @@ def sort_by_prediction_error(model, X, Y, error_function):
     
     # Ascending sorting for serires based on prediction error
     sorted_errors_indx = errors.argsort()
+
     X = X[sorted_errors_indx]
     Y = Y[sorted_errors_indx]
     predictions = predictions[sorted_errors_indx]
