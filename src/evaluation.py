@@ -81,9 +81,9 @@ def load_and_evaluate_model(model_base_dir, training_data_dir, test_data_dir, lo
 
     return hyperparameters, round(training_error, 3), round(test_error,3), round(validation_error, 3)
 
-def sort_by_prediction_error(model, X, Y, error_function):
+def sort_by_prediction_error(model, X, Y, error_function, features_number = 1):
     predictions = np.empty(shape=[0, Y.shape[1]])
-    X,Y = reshape_data_in_batches(X, Y, model.batch_size)
+    X,Y = reshape_data_in_batches(X, Y, model.batch_size, features_number)
 
     errors = np.empty(shape=[0, 0])
     
