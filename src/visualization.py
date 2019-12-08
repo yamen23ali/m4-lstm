@@ -58,3 +58,24 @@ def plot_m4_complete_series(training_file_path, test_file_path):
         axs.axvline(x=48, color='g')
         plt.show()
 
+
+def plot_serie_with_bounds(x, y, predictedY, lower_bound, upper_bound, serie_indx = 0):
+    
+    fig, axs = plt.subplots(1, 1, figsize=(40, 20))
+    
+    true_series_time_axes = np.arange(0, x.shape[1] + y.shape[1])
+    predicted_series_time_axes= np.arange(x.shape[1], x.shape[1] + y.shape[1])
+    
+    true_series_value_axes = np.concatenate((x, y), axis = 1)
+    
+    axs.plot(true_series_time_axes, true_series_value_axes[serie_indx,:], color='b')
+    axs.plot(predicted_series_time_axes, predictedY[serie_indx,:], color='r')
+    axs.plot(predicted_series_time_axes, lower_bound[serie_indx,:], color='y')
+    axs.plot(predicted_series_time_axes, upper_bound[serie_indx,:], color='c')
+    axs.axvline(x=x.shape[1], color='g')
+    
+    axs.set_xlabel('Time', fontsize=20)
+    axs.set_ylabel('Value', fontsize=20)    
+    axs.set_title('True Values & Point Predictions', fontsize=20)
+    axs.legend(['True Serie', 'Predicted Serie'], prop={'size': 30})
+

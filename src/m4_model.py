@@ -45,7 +45,7 @@ class M4Model(object):
         self.model.add(Dense(output_size, activation='linear',
                 kernel_initializer=keras.initializers.RandomNormal(mean=0.0, stddev=0.3)))
 
-        self.opt = optimizers.RMSprop(lr=learning_rate)#, clipvalue=0.3)
+        self.opt = optimizers.RMSprop(lr=learning_rate, clipvalue=100)
         #opt = optimizers.SGD(lr=0.01, decay=1e-2, momentum=0.7, nesterov=True)
 
         self.model.compile(loss=self.loss, optimizer=self.opt)
