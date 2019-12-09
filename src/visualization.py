@@ -25,7 +25,7 @@ def plot_series(x, y, predictedY, series_num = 3):
     axs[1].axvline(x=x.shape[1], color='r')
 
 
-def plot_serie_and_prediction(x, y, predictedY, serie_indx = 0):
+def plot_serie_and_prediction(x, y, predictedY,lower_bound=[], upper_bound=[], serie_indx = 0):
     fig, axs = plt.subplots(1, 1, figsize=(40, 20))
     
     true_series_time_axes = np.arange(0, x.shape[1] + y.shape[1] )
@@ -35,6 +35,9 @@ def plot_serie_and_prediction(x, y, predictedY, serie_indx = 0):
     
     axs.plot(true_series_time_axes, true_series_value_axes[serie_indx,:], color='b')
     axs.plot(predicted_series_time_axes, predictedY[serie_indx,:], color='r')
+    axs.plot(predicted_series_time_axes, lower_bound[serie_indx,:], color='y')
+    axs.plot(predicted_series_time_axes, upper_bound[serie_indx,:], color='c')
+
     axs.axvline(x=x.shape[1], color='g')
     
     axs.set_xlabel('Time', fontsize=20)
