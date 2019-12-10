@@ -36,18 +36,18 @@ class M4Model(object):
 
 
         self.model.add(LSTM(hidden_layer_size, batch_input_shape=(batch_size, lookback, features_number), return_sequences=True, activation='tanh',
-            kernel_initializer=keras.initializers.RandomNormal(mean=0.0, stddev=0.2), recurrent_dropout=dropout_ratio))
+           kernel_initializer=keras.initializers.RandomNormal(mean=0.0, stddev=0.01), recurrent_dropout=dropout_ratio))
 
         self.model.add(LSTM(hidden_layer_size, batch_input_shape=(batch_size, lookback,features_number), return_sequences=True, activation='tanh',
-            kernel_initializer=keras.initializers.RandomNormal(mean=0.0, stddev=0.2), recurrent_dropout=dropout_ratio))
+            kernel_initializer=keras.initializers.RandomNormal(mean=0.0, stddev=0.01), recurrent_dropout=dropout_ratio))
 
         self.model.add(LSTM(hidden_layer_size, batch_input_shape=(batch_size, lookback,features_number),  activation='tanh',
-              kernel_initializer=keras.initializers.RandomNormal(mean=0.0, stddev=0.2), recurrent_dropout=dropout_ratio))
+              kernel_initializer=keras.initializers.RandomNormal(mean=0.0, stddev=0.01), recurrent_dropout=dropout_ratio))
 
         self.model.add(Dense(output_size, activation='linear',
-                kernel_initializer=keras.initializers.RandomNormal(mean=0.0, stddev=0.3)))
+                kernel_initializer=keras.initializers.RandomNormal(mean=0.0, stddev=0.01)))
 
-        self.opt = optimizers.RMSprop(lr=learning_rate, decay=1e-2, clipvalue=3)
+        self.opt = optimizers.RMSprop(lr=learning_rate, clipvalue=1.5) #, decay=1e-3, clipvalue=0.1) #  clipvalue=0.1) #clipnorm=0.25
         #self.opt = optimizers.SGD(lr=learning_rate, decay=1e-2, momentum=0.7, nesterov=True)
 
         self.model.compile(loss=self.loss, optimizer=self.opt)
