@@ -9,11 +9,12 @@ from tensorflow.keras import backend as K
 
 class M4DataLoader(object):
 
-    def __init__(self, train_data_path, test_data_path, lookback=48, horizon=48, validation_ratio = 0.05):
+    def __init__(self, train_data_path, test_data_path, lookback=48, horizon=48, validation_ratio = 0.05, pi_params = {}):
         
         self.validation_ratio = validation_ratio
         self.lookback = lookback
         self.horizon = horizon
+        self.pi_params = pi_params
         
         self.__load_data(train_data_path, test_data_path)
     
@@ -84,27 +85,57 @@ class M4DataLoader(object):
         shifted_data = np.hstack((data[:,1:], data[:,-1][:,np.newaxis]))
         return shifted_data - data
 
+    def __get_std(self, data):
+        data = np.abs(data) + 0.2
+
+        max_coff = self.pi_params['max_coff']
+        min_coff = self.pi_params['min_coff']
+        step = self.pi_params['step']
+
+        ranges_number = round((max_coff - min_coff) / step)
+
+        #print(ranges_number)
+
+        max_values = data.max(axis = 1)
+        ranges_step = max_values / ranges_number
+
+        coffs = max_coff - (( data / ranges_step[:,np.newaxis]) * step)
+        
+        #print("==== data")
+        #print(data[0,:])
+        #print("==== coffs")
+        #print(coffs[0,:])
+
+        #print("==== std")
+        #print((data * coffs)[0,:])
+
+        return data * coffs
+
+
+
     def __augment_diff_x(self, data):
-        diff = self.__get_diff(data)
+        #diff = self.__get_diff(data)
+        diff = self.__get_std(data)
         return np.dstack((data, diff))
 
     def __augment_diff_y(self, data):
-        diff = self.__get_diff(data)
+        #diff = self.__get_diff(data)
+        diff = self.__get_std(data)
         return np.hstack((data, diff))
 
     def get_training_data(self):
         X, Y = self.__build_from_series(self.train_test_data[:,:self.train_serie_length])
 
-        #return self.__augment_diff_x(X), self.__augment_diff_y(Y)
-        return X, Y
+        return self.__augment_diff_x(X), self.__augment_diff_y(Y)
+        #return X, Y
         
 
     def get_test_data(self):
         X, Y= self.__build_from_series_pairs(self.train_test_data[:,:self.train_serie_length],
             self.train_test_data[:,-self.test_serie_length:])
 
-        #return self.__augment_diff_x(X), self.__augment_diff_y(Y)
-        return X, Y
+        return self.__augment_diff_x(X), self.__augment_diff_y(Y)
+        #return X, Y
 
     def get_validation_data(self):
         X1, Y1 = self.__build_from_series(self.validation_data[:,:self.train_serie_length])
@@ -114,6 +145,6 @@ class M4DataLoader(object):
         X = np.concatenate((X1, X2), axis=0)
         Y = np.concatenate((Y1, Y2), axis=0)
 
-        #return self.__augment_diff_x(X), self.__augment_diff_y(Y)
-        return X, Y
+        return self.__augment_diff_x(X), self.__augment_diff_y(Y)
+        #return X, Y
 

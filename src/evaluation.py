@@ -43,41 +43,34 @@ def reshape_data_in_batches(X, Y, batch_size, features_number):
     
     return X, Y
 
-def evaluate_model(model, X, Y, loss_function, features_number =1):
+def evaluate_model(model, X, Y, loss_function):
     
-    X,Y = reshape_data_in_batches(X, Y, model.batch_size, features_number)
+    X,Y = reshape_data_in_batches(X, Y, model.batch_size, model.features_number)
     
     errors = []
     
     for x_batch, y_batch in zip(X, Y):
         predictedY = model.predict(x_batch)
-        errors.append(loss_function(y_batch[:,:,0], predictedY))
+        errors.append(loss_function(y_batch[:,:,0], predictedY[:,:48]))
         
     return np.mean(errors)
 
-def load_and_evaluate_model(model_base_dir, training_data_dir, test_data_dir, loss_function):
+def load_and_evaluate_model(model_base_dir, training_data_dir, test_data_dir, loss_function, pi_params):
     model = M4Model()
     hyperparameters = model.load(model_base_dir)
-    
-    features_number = hyperparameters['features_number']
-    output_size = hyperparameters['output_size']
-    lookback = hyperparameters['lookback']
 
-    data_loader = M4DataLoader(training_data_dir, test_data_dir, lookback)
+    data_loader = M4DataLoader(training_data_dir, test_data_dir, model.lookback, pi_params = pi_params)
 
     train_x, train_y = data_loader.get_training_data()
     test_x, test_y = data_loader.get_test_data()
     validate_x, validate_y = data_loader.get_validation_data()
 
 
-    training_error = evaluate_model(model, train_x[:,:,:features_number], 
-        train_y[:,:output_size], loss_function, features_number)
+    training_error = evaluate_model(model, train_x, train_y, loss_function)
     
-    test_error = evaluate_model(model, test_x[:,:,:features_number], 
-        test_y[:,:output_size], loss_function, features_number)
+    test_error = evaluate_model(model, test_x, test_y, loss_function)
     
-    validation_error = evaluate_model(model, validate_x[:,:,:features_number], 
-        validate_y[:,:output_size], loss_function, features_number)
+    validation_error = evaluate_model(model, validate_x, validate_y, loss_function)
 
     return hyperparameters, round(training_error, 3), round(test_error,3), round(validation_error, 3)
 

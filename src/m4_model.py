@@ -15,7 +15,7 @@ from keras.models import model_from_json
 class M4Model(object):
 
     def __init__(self, hidden_layer_size=100, batch_size=50, lookback=48, 
-        output_size=48, learning_rate=0.001, loss='mae', dropout_ratio=0.0, features_number = 1):
+        output_size=48, learning_rate=0.001, loss='mae', dropout_ratio=0.0, features_number = 1, pi_params={}, callbacks=[]):
 
         self.architecture_file_name = 'architecture.json'
         self.weights_file_name = 'weights.h5'
@@ -29,15 +29,17 @@ class M4Model(object):
         self.loss = loss
         self.dropout_ratio = dropout_ratio
         self.features_number = features_number
+        self.pi_params = pi_params
+        self.callbacks = callbacks
 
         self.model = Sequential()
 
 
         self.model.add(LSTM(hidden_layer_size, batch_input_shape=(batch_size, lookback, features_number), return_sequences=True, activation='tanh',
-             kernel_initializer=keras.initializers.RandomNormal(mean=0.0, stddev=0.2), recurrent_dropout=dropout_ratio))
+            kernel_initializer=keras.initializers.RandomNormal(mean=0.0, stddev=0.2), recurrent_dropout=dropout_ratio))
 
         self.model.add(LSTM(hidden_layer_size, batch_input_shape=(batch_size, lookback,features_number), return_sequences=True, activation='tanh',
-             kernel_initializer=keras.initializers.RandomNormal(mean=0.0, stddev=0.2), recurrent_dropout=dropout_ratio))
+            kernel_initializer=keras.initializers.RandomNormal(mean=0.0, stddev=0.2), recurrent_dropout=dropout_ratio))
 
         self.model.add(LSTM(hidden_layer_size, batch_input_shape=(batch_size, lookback,features_number),  activation='tanh',
               kernel_initializer=keras.initializers.RandomNormal(mean=0.0, stddev=0.2), recurrent_dropout=dropout_ratio))
@@ -45,27 +47,10 @@ class M4Model(object):
         self.model.add(Dense(output_size, activation='linear',
                 kernel_initializer=keras.initializers.RandomNormal(mean=0.0, stddev=0.3)))
 
-        self.opt = optimizers.RMSprop(lr=learning_rate, clipvalue=100)
-        #opt = optimizers.SGD(lr=0.01, decay=1e-2, momentum=0.7, nesterov=True)
+        self.opt = optimizers.RMSprop(lr=learning_rate, decay=1e-2, clipvalue=3)
+        #self.opt = optimizers.SGD(lr=learning_rate, decay=1e-2, momentum=0.7, nesterov=True)
 
         self.model.compile(loss=self.loss, optimizer=self.opt)
-
-    def __get_hyper_parameters_dict(self):
-        loss_name = self.loss
-
-        if not isinstance(self.loss, str):
-            loss_name = self.loss.__name__
-        
-        return {
-            'epochs': self.epochs,
-            'batch_size': self.batch_size,
-            'hidden_layer_size': self.hidden_layer_size,
-            'lookback': self.lookback, 
-            'loss': loss_name,
-            'dropout_ratio': self.dropout_ratio,
-            'features_number': self.features_number,
-            'output_size': self.output_size
-        }
 
     def compile(self):
         self.model.compile(loss=self.loss, optimizer=self.opt)
@@ -77,7 +62,7 @@ class M4Model(object):
             validation_data = test_data_generator,
             validation_steps=test_data_generator.steps_per_epoch(),
             steps_per_epoch=training_data_generator.steps_per_epoch(), 
-            epochs=epochs)
+            epochs=epochs, callbacks= self.callbacks)
 
     def predict(self, X):
         return self.model.predict(X, batch_size = self.batch_size)
@@ -101,7 +86,11 @@ class M4Model(object):
 
         # load and return hyperparameters
         with open(model_hyperparameters_path, "r") as json_file:
-            return json.loads(json_file.read())
+            hyperparameters =  json.loads(json_file.read())
+            self.__load_hyperparameters(hyperparameters)
+
+            return hyperparameters
+
 
     def save(self, base_dir):
         model_dir = create_model_dir(base_dir)
@@ -123,4 +112,34 @@ class M4Model(object):
             json.dump(hp, file)
         
         print(f'Saved model files to disk under{model_dir}')
+
+    def __get_hyper_parameters_dict(self):
+        loss_name = self.loss
+
+        if not isinstance(self.loss, str):
+            loss_name = self.loss.__name__
+        
+        return {
+            'epochs': self.epochs,
+            'batch_size': self.batch_size,
+            'hidden_layer_size': self.hidden_layer_size,
+            'lookback': self.lookback, 
+            'loss': loss_name,
+            'dropout_ratio': self.dropout_ratio,
+            'features_number': self.features_number,
+            'output_size': self.output_size,
+            'pi_params': self.pi_params
+        }
+
+    def __load_hyperparameters(self, hyperparameters):
+        self.epochs = hyperparameters['epochs']
+        self.batch_size = hyperparameters['batch_size']
+        self.hidden_layer_size = hyperparameters['hidden_layer_size']
+        self.lookback = hyperparameters['lookback']
+        self.dropout_ratio = hyperparameters['dropout_ratio']
+        self.features_number = hyperparameters['features_number']
+        self.output_size = hyperparameters['output_size']
+
+
+
     
