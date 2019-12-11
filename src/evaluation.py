@@ -30,36 +30,17 @@ def evaluate_exponential_smoothing(X, Y, loss_function):
         errors = np.append(errors, loss)
     return np.mean(errors)
 
-def reshape_data_in_batches(X, Y, batch_size, features_number):
-    
-    complete_batches = np.floor(X.shape[0]/batch_size)+1
-    missing_samples = int((complete_batches*batch_size) - X.shape[0])
-    
-    X = np.concatenate((X, X[:missing_samples,:]), axis=0)
-    Y = np.concatenate((Y, Y[:missing_samples,:]), axis=0)
-
-    X = X.reshape(-1,batch_size, X.shape[1], features_number)
-    Y = Y.reshape(-1,batch_size, Y.shape[1], 1)
-    
-    return X, Y
-
 def evaluate_model(model, X, Y, loss_function):
-    
-    X,Y = reshape_data_in_batches(X, Y, model.batch_size, model.features_number)
-    
-    errors = []
-    
-    for x_batch, y_batch in zip(X, Y):
-        predictedY = model.predict(x_batch)
-        errors.append(loss_function(y_batch[:,:,0], predictedY[:,:48]))
-        
-    return np.mean(errors)
 
-def load_and_evaluate_model(model_base_dir, training_data_dir, test_data_dir, loss_function, pi_params):
+    predictedY = model.predict(X)
+    return loss_function(Y[:,:48], predictedY[:,:48]).numpy().mean()
+
+
+def load_and_evaluate_model(model_base_dir, training_data_dir, test_data_dir, loss_function):
     model = M4Model()
     hyperparameters = model.load(model_base_dir)
 
-    data_loader = M4DataLoader(training_data_dir, test_data_dir, model.lookback, pi_params = pi_params)
+    data_loader = M4DataLoader(training_data_dir, test_data_dir, model.lookback, pi_params = model.pi_params)
 
     train_x, train_y = data_loader.get_training_data()
     test_x, test_y = data_loader.get_test_data()
@@ -74,34 +55,18 @@ def load_and_evaluate_model(model_base_dir, training_data_dir, test_data_dir, lo
 
     return hyperparameters, round(training_error, 3), round(test_error,3), round(validation_error, 3)
 
-def sort_by_prediction_error(model, X, Y, error_function, features_number =1, output_size = 48):
-    predictions = np.empty(shape=[0, output_size])
-    X,Y = reshape_data_in_batches(X, Y, model.batch_size, features_number)
+def sort_by_prediction_error(model, X, Y, loss_function):
 
-    errors = np.empty(shape=[0, 0])
-    
-    for batch_x, batch_y in zip(X, Y):
+    predictedY = model.predict(X)
 
-        batch_predictions = model.predict(batch_x)
-
-        predictions = np.concatenate((predictions, batch_predictions), axis = 0)
-
-        batch_errors = error_function(batch_y[:,:48,0], batch_predictions[:,:48])
-
-        errors = np.append(errors, batch_errors)
-
-    X = X[:,:,:,0]
-    Y = Y[:,:,:48]
-
-    X = X.reshape(-1, X.shape[2])
-    Y = Y.reshape(-1, Y.shape[2])
+    errors = loss_function(Y[:,:48], predictedY[:,:48]).numpy()[:,0]
     
     # Ascending sorting for serires based on prediction error
     sorted_errors_indx = errors.argsort()
 
-    X = X[sorted_errors_indx]
-    Y = Y[sorted_errors_indx]
-    predictions = predictions[sorted_errors_indx]
+    X = X[sorted_errors_indx,:,:]
+    Y = Y[sorted_errors_indx,:]
+    predictedY = predictedY[sorted_errors_indx, :]
     errors = errors[sorted_errors_indx]
     
-    return X, Y, predictions, errors
+    return X, Y, predictedY, errors

@@ -1,6 +1,7 @@
 import keras
 import tensorflow as tf
 import json
+import numpy as np
 
 from src.utils import create_model_dir
 
@@ -36,18 +37,18 @@ class M4Model(object):
 
 
         self.model.add(LSTM(hidden_layer_size, batch_input_shape=(batch_size, lookback, features_number), return_sequences=True, activation='tanh',
-           kernel_initializer=keras.initializers.RandomNormal(mean=0.0, stddev=0.01), recurrent_dropout=dropout_ratio))
+           kernel_initializer=keras.initializers.RandomNormal(mean=0.0, stddev=0.1), recurrent_dropout=dropout_ratio))
 
         self.model.add(LSTM(hidden_layer_size, batch_input_shape=(batch_size, lookback,features_number), return_sequences=True, activation='tanh',
-            kernel_initializer=keras.initializers.RandomNormal(mean=0.0, stddev=0.01), recurrent_dropout=dropout_ratio))
+            kernel_initializer=keras.initializers.RandomNormal(mean=0.0, stddev=0.3), recurrent_dropout=dropout_ratio))
 
         self.model.add(LSTM(hidden_layer_size, batch_input_shape=(batch_size, lookback,features_number),  activation='tanh',
-              kernel_initializer=keras.initializers.RandomNormal(mean=0.0, stddev=0.01), recurrent_dropout=dropout_ratio))
+              kernel_initializer=keras.initializers.RandomNormal(mean=0.0, stddev=0.5), recurrent_dropout=dropout_ratio))
 
         self.model.add(Dense(output_size, activation='linear',
-                kernel_initializer=keras.initializers.RandomNormal(mean=0.0, stddev=0.01)))
+                kernel_initializer=keras.initializers.RandomNormal(mean=0.0, stddev=0.2)))
 
-        self.opt = optimizers.RMSprop(lr=learning_rate, clipvalue=1.5) #, decay=1e-3, clipvalue=0.1) #  clipvalue=0.1) #clipnorm=0.25
+        self.opt = optimizers.RMSprop(lr=learning_rate, decay=0.1/200.0, clipvalue=1.5) #, clipvalue=1.5) #, decay=1e-3, clipvalue=0.1) #  clipvalue=0.1) #
         #self.opt = optimizers.SGD(lr=learning_rate, decay=1e-2, momentum=0.7, nesterov=True)
 
         self.model.compile(loss=self.loss, optimizer=self.opt)
@@ -65,7 +66,23 @@ class M4Model(object):
             epochs=epochs, callbacks= self.callbacks)
 
     def predict(self, X):
-        return self.model.predict(X, batch_size = self.batch_size)
+        predictions = np.empty(shape=[0, self.output_size])
+
+        samples_without_batch = X.shape[0] % self.batch_size
+        
+        if samples_without_batch > 0:
+            missing_samples = self.batch_size - samples_without_batch
+            X = np.concatenate((X, X[:missing_samples,:]), axis=0)
+
+        batches_number = int(X.shape[0] / self.batch_size)
+
+        X = X.reshape(-1, self.batch_size, X.shape[1], self.features_number)
+
+        for x_batch in X:
+            batch_predictions = self.model.predict(x_batch, batch_size = self.batch_size)
+            predictions = np.concatenate((predictions, batch_predictions), axis = 0)
+        
+        return predictions[:-missing_samples,:]
 
     def evaluate(self, validation_data_generator):
         return self.model.evaluate(validation_data_generator)
@@ -139,7 +156,6 @@ class M4Model(object):
         self.dropout_ratio = hyperparameters['dropout_ratio']
         self.features_number = hyperparameters['features_number']
         self.output_size = hyperparameters['output_size']
-
-
+        self.pi_params = hyperparameters['pi_params']
 
     
