@@ -17,9 +17,9 @@ def kl_divergance(yTrue, yPred):
 
 	stdTrue = yTrue[:,48:] 
 	stdPred = tf.abs(yPred[:,-48:])
-	err = __kl_div_gaussian(tsTrue, tsTrue, stdTrue, stdPred)
+	#err = __kl_div_gaussian(tsTrue, tsTrue, stdTrue, stdPred)
 
-	return  tf.add(err, mase(tsTrue, tsPred))#__kl_div(tsTrue, tsPred, stdTrue, stdPred)
+	return  __kl_div(tsTrue, tsPred, stdTrue, stdPred)
 
 def kl_divergance_diff(yTrue, yPred):
 	tsTrue = yTrue[:,:48]
@@ -35,7 +35,8 @@ def naive_error(yTrue):
 	return tf.reduce_mean(tf.abs(yTrue[:,1:] - yTrue[:,:-1]), axis=1)
 
 def mase(yTrue, yPred):
-	yTrue = yTrue[:,:96]
+	yTrue = yTrue[:,:48]
+	yPred = yPred[:,:48]
 	naive_err = naive_error(yTrue)
 	return mae(yTrue, yPred)[:,np.newaxis] / naive_err[:,np.newaxis]
 
@@ -78,7 +79,9 @@ def msis(insample, yTrue, yLower, yUpper):
         ts_penalty = ts_penalty / (ts.shape[0] * naive_err)
         
         total_penalty.append(ts_penalty)
-        
-        
     
     return np.array(total_penalty).mean()
+
+
+
+

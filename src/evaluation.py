@@ -43,8 +43,8 @@ def load_and_evaluate_model(model_base_dir, training_data_dir, test_data_dir, lo
 
     stdAugmentation = StdAugmentation(model.pi_params)
     diffAugmentation = DiffAugmentation()
-    x_augmentations = [diffAugmentation, stdAugmentation]
-    y_augmentations = [diffAugmentation, stdAugmentation]
+    x_augmentations = [stdAugmentation]
+    y_augmentations = [stdAugmentation]
 
     data_loader = M4DataLoader(training_data_dir, test_data_dir, 
                            x_augmentations, 
