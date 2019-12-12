@@ -8,6 +8,7 @@ from src.error_functions import *
 from src.m4_data_loader import M4DataLoader
 from src.m4_model import M4Model
 from src.utils import *
+from src.data_augmentations import *
 
 from keras.models import model_from_json
 
@@ -40,7 +41,16 @@ def load_and_evaluate_model(model_base_dir, training_data_dir, test_data_dir, lo
     model = M4Model()
     hyperparameters = model.load(model_base_dir)
 
-    data_loader = M4DataLoader(training_data_dir, test_data_dir, model.lookback, pi_params = model.pi_params)
+    stdAugmentation = StdAugmentation(model.pi_params)
+    diffAugmentation = DiffAugmentation()
+    x_augmentations = [diffAugmentation, stdAugmentation]
+    y_augmentations = [diffAugmentation, stdAugmentation]
+
+    data_loader = M4DataLoader(training_data_dir, test_data_dir, 
+                           x_augmentations, 
+                           y_augmentations,
+                           model.lookback,  validation_ratio=0.05)
+
 
     train_x, train_y = data_loader.get_training_data()
     test_x, test_y = data_loader.get_test_data()

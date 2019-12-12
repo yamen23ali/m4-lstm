@@ -48,7 +48,7 @@ class M4Model(object):
         self.model.add(Dense(output_size, activation='linear',
                 kernel_initializer=keras.initializers.RandomNormal(mean=0.0, stddev=0.2)))
 
-        self.opt = optimizers.RMSprop(lr=learning_rate, decay=0.1/200.0, clipvalue=1.5) #, clipvalue=1.5) #, decay=1e-3, clipvalue=0.1) #  clipvalue=0.1) #
+        self.opt = optimizers.RMSprop(lr=learning_rate, clipvalue=0.3) #decay=0.1/20.0, ) #, clipvalue=1.5) #, decay=1e-3, clipvalue=0.1) #  clipvalue=0.1) #
         #self.opt = optimizers.SGD(lr=learning_rate, decay=1e-2, momentum=0.7, nesterov=True)
 
         self.model.compile(loss=self.loss, optimizer=self.opt)
@@ -67,6 +67,7 @@ class M4Model(object):
 
     def predict(self, X):
         predictions = np.empty(shape=[0, self.output_size])
+        missing_samples = 0
 
         samples_without_batch = X.shape[0] % self.batch_size
         
@@ -82,7 +83,10 @@ class M4Model(object):
             batch_predictions = self.model.predict(x_batch, batch_size = self.batch_size)
             predictions = np.concatenate((predictions, batch_predictions), axis = 0)
         
-        return predictions[:-missing_samples,:]
+        if missing_samples > 0:
+            return predictions[:-missing_samples,:]
+
+        return predictions
 
     def evaluate(self, validation_data_generator):
         return self.model.evaluate(validation_data_generator)
@@ -138,6 +142,7 @@ class M4Model(object):
         
         return {
             'epochs': self.epochs,
+            'learning_rate': self.learning_rate,
             'batch_size': self.batch_size,
             'hidden_layer_size': self.hidden_layer_size,
             'lookback': self.lookback, 
@@ -157,5 +162,6 @@ class M4Model(object):
         self.features_number = hyperparameters['features_number']
         self.output_size = hyperparameters['output_size']
         self.pi_params = hyperparameters['pi_params']
+        #self.learning_rate = hyperparameters['learning_rate']
 
     

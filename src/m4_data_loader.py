@@ -9,14 +9,37 @@ from tensorflow.keras import backend as K
 
 class M4DataLoader(object):
 
-    def __init__(self, train_data_path, test_data_path, lookback=48, horizon=48, validation_ratio = 0.05, pi_params = {}):
+    def __init__(self, train_data_path, test_data_path, x_augmentations =[], y_augmentations = [], lookback=48, horizon=48, validation_ratio = 0.05):
         
         self.validation_ratio = validation_ratio
         self.lookback = lookback
         self.horizon = horizon
-        self.pi_params = pi_params
+        self.x_augmentations = x_augmentations
+        self.y_augmentations = y_augmentations
         
         self.__load_data(train_data_path, test_data_path)
+
+
+    def get_training_data(self):
+        X, Y = self.__build_from_series(self.train_test_data[:,:self.train_serie_length])
+
+        return self.__apply_x_augmentations(X), self.__apply_y_augmentations(Y)
+
+    def get_test_data(self):
+        X, Y= self.__build_from_series_pairs(self.train_test_data[:,:self.train_serie_length],
+            self.train_test_data[:,-self.test_serie_length:])
+
+        return self.__apply_x_augmentations(X), self.__apply_y_augmentations(Y)
+
+    def get_validation_data(self):
+        X1, Y1 = self.__build_from_series(self.validation_data[:,:self.train_serie_length])
+        X2, Y2 = self.__build_from_series_pairs(self.validation_data[:,:self.train_serie_length],
+            self.validation_data[:,-self.test_serie_length:])
+
+        X = np.concatenate((X1, X2), axis=0)
+        Y = np.concatenate((Y1, Y2), axis=0)
+
+        return self.__apply_x_augmentations(X), self.__apply_y_augmentations(Y)
     
     
     def __merge_and_standarize(self,raw_train_data, raw_test_data):
@@ -80,71 +103,19 @@ class M4DataLoader(object):
         self.train_serie_length = raw_train_data.shape[1]
         self.test_serie_length = raw_test_data.shape[1]
 
-
-    def __get_diff(self, data):
-        shifted_data = np.hstack((data[:,1:], data[:,-1][:,np.newaxis]))
-        return shifted_data - data
-
-    def __get_std(self, data):
-        data = np.abs(data) + 0.2
-
-        max_coff = self.pi_params['max_coff']
-        min_coff = self.pi_params['min_coff']
-        step = self.pi_params['step']
-
-        ranges_number = round((max_coff - min_coff) / step)
-
-        #print(ranges_number)
-
-        max_values = data.max(axis = 1)
-        ranges_step = max_values / ranges_number
-
-        coffs = max_coff - (( data / ranges_step[:,np.newaxis]) * step)
+    def __apply_x_augmentations(self, data):
+        augmented_data = data
+        for augmentation in self.x_augmentations:
+            augmented_data = np.dstack((augmented_data, augmentation.create(data) ))
         
-        #print("==== data")
-        #print(data[0,:])
-        #print("==== coffs")
-        #print(coffs[0,:])
+        return augmented_data
 
-        #print("==== std")
-        #print((data * coffs)[0,:])
-
-        return data * coffs
-
-
-
-    def __augment_diff_x(self, data):
-        #diff = self.__get_diff(data)
-        diff = self.__get_std(data)
-        return np.dstack((data, diff))
-
-    def __augment_diff_y(self, data):
-        #diff = self.__get_diff(data)
-        diff = self.__get_std(data)
-        return np.hstack((data, diff))
-
-    def get_training_data(self):
-        X, Y = self.__build_from_series(self.train_test_data[:,:self.train_serie_length])
-
-        return self.__augment_diff_x(X), self.__augment_diff_y(Y)
-        #return X, Y
+    def __apply_y_augmentations(self, data):
+        augmented_data = data
+        for augmentation in self.x_augmentations:
+            augmented_data = np.hstack((augmented_data, augmentation.create(data)))
         
+        return augmented_data
 
-    def get_test_data(self):
-        X, Y= self.__build_from_series_pairs(self.train_test_data[:,:self.train_serie_length],
-            self.train_test_data[:,-self.test_serie_length:])
-
-        return self.__augment_diff_x(X), self.__augment_diff_y(Y)
-        #return X, Y
-
-    def get_validation_data(self):
-        X1, Y1 = self.__build_from_series(self.validation_data[:,:self.train_serie_length])
-        X2, Y2 = self.__build_from_series_pairs(self.validation_data[:,:self.train_serie_length],
-            self.validation_data[:,-self.test_serie_length:])
-
-        X = np.concatenate((X1, X2), axis=0)
-        Y = np.concatenate((Y1, Y2), axis=0)
-
-        return self.__augment_diff_x(X), self.__augment_diff_y(Y)
-        #return X, Y
+    
 
