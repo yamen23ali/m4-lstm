@@ -43,8 +43,8 @@ def load_and_evaluate_model(model_base_dir, training_data_dir, test_data_dir, lo
 
     stdAugmentation = StdAugmentation(model.pi_params)
     diffAugmentation = DiffAugmentation()
-    x_augmentations = [stdAugmentation]
-    y_augmentations = [stdAugmentation]
+    x_augmentations = []
+    y_augmentations = []
 
     data_loader = M4DataLoader(training_data_dir, test_data_dir, 
                            x_augmentations, 
@@ -54,14 +54,14 @@ def load_and_evaluate_model(model_base_dir, training_data_dir, test_data_dir, lo
 
     train_x, train_y = data_loader.get_training_data()
     test_x, test_y = data_loader.get_test_data()
-    validate_x, validate_y = data_loader.get_validation_data()
+    #validate_x, validate_y = data_loader.get_validation_data()
 
 
     training_error = evaluate_model(model, train_x, train_y, loss_function)
     
     test_error = evaluate_model(model, test_x, test_y, loss_function)
     
-    validation_error = evaluate_model(model, validate_x, validate_y, loss_function)
+    validation_error = 1#evaluate_model(model, validate_x, validate_y, loss_function)
 
     return hyperparameters, round(training_error, 3), round(test_error,3), round(validation_error, 3)
 
@@ -74,7 +74,7 @@ def sort_by_prediction_error(model, X, Y, loss_function):
     # Ascending sorting for serires based on prediction error
     sorted_errors_indx = errors.argsort()
 
-    X = X[sorted_errors_indx,:,:]
+    X = X[sorted_errors_indx,:]
     Y = Y[sorted_errors_indx,:]
     predictedY = predictedY[sorted_errors_indx, :]
     errors = errors[sorted_errors_indx]
