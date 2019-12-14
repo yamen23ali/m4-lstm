@@ -15,11 +15,14 @@ class DiffAugmentation(object):
 
 class StdAugmentation(object):
 
-    def __init__(self, pi_params, epsilon = 0.05):
-        self.max_coff = pi_params['max_coff']
-        self.min_coff = pi_params['min_coff']
-        self.step = pi_params['step']
-        self.epsilon = epsilon
+    def __init__(self, pi_params = {}, epsilon = 0.05):
+        try:
+            self.epsilon = epsilon
+            self.max_coff = pi_params['max_coff']
+            self.min_coff = pi_params['min_coff']
+            self.step = pi_params['step']
+        except Exception as e:
+            print("Missing PI Params")
 
     def create(self, data):
         data = np.abs(data) + self.epsilon
@@ -32,3 +35,8 @@ class StdAugmentation(object):
         coffs = self.max_coff - (( data / ranges_step[:,np.newaxis]) * self.step)
 
         return data * coffs
+
+    def set_pi_params(self, pi_params):
+        self.max_coff = pi_params['max_coff']
+        self.min_coff = pi_params['min_coff']
+        self.step = pi_params['step']

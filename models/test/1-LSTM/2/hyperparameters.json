@@ -1,1 +1,0 @@
-{"epochs": 3, "learning_rate": 0.001, "batch_size": 50, "hidden_layer_size": 80, "lookback": 48, "loss": "smape", "dropout_ratio": 0.3, "features_number": 2, "output_size": 96, "pi_params": {}}

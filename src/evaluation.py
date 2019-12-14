@@ -16,18 +16,26 @@ from keras.models import model_from_json
 def evaluate_snaive(X, Y):
     predictedY = X[:,-Y.shape[1]:]
     
-    return np.mean(mase(X, Y, predictedY))
+    return np.mean(m4_mase(X, Y, predictedY))
 
 def evaluate_naive(X, Y):
     predictedY =  np.tile(X[:,-1][:,np.newaxis], Y.shape[1])
 
-    return np.mean(mase(X, Y, predictedY))
+    return np.mean(m4_mase(X, Y, predictedY))
+
+def evaluate_naive_PI(X, Y):
+    y = Y[:,:48]
+    lower, upper = naive_pi(y)
+    acd_err = acd( y[:,:-1], lower, upper)
+    msis_err = msis(X[:,:],  y[:,:-1], lower, upper)
+
+    return acd_err, msis_err
 
 def evaluate_exponential_smoothing(X, Y, loss_function):
     errors = []
     for x,y in zip(X,Y):
         predictedY = exponential_smoothing(x)
-        loss = mase(X, predictedY[:,np.newaxis], y[:,np.newaxis])
+        loss = m4_mase(X, predictedY[:,np.newaxis], y[:,np.newaxis])
         errors = np.append(errors, loss)
     return np.mean(errors)
 
@@ -39,26 +47,51 @@ def evaluate_model(model, X, Y, loss_function):
         X = X[:,:, np.newaxis]
 
     return loss_function(X[:,:,0], Y[:,:48], predictedY[:,:48]).numpy().mean()
-    
 
-def evaluate_model1(model, X, Y, loss_function):
+def evaluate_berken_PI(model, X, Y):
 
     predictedY = model.predict(X)
 
-    if loss_function == mase:
-        if model.features_number == 1: X = X[:,:, np.newaxis]
+    lower_bound = predictedY[:,-48:]
+    upper_bound = predictedY[:,48:-48]
 
-        return mase(X[:,:,0], Y[:,:48], predictedY[:,:48]).numpy().mean()
+    acd_err = acd(Y[:,:48], lower_bound, upper_bound)
+    msis_err = msis(X, Y[:,:48], lower_bound, upper_bound)
+
+    return acd_err, msis_err
+
+def evaluate_kl_PI(model, X, Y):
+
+    predictedY = model.predict(X)
+
+    y = Y[:,:48]
+    x = X[:,:,0]
+
+    lower_bound = predictedY[:,:48] - 2*tf.abs(predictedY[:,-48:])
+    upper_bound = predictedY[:,:48] + 2*tf.abs(predictedY[:,-48:])
+
+    acd_err = acd(y, lower_bound.numpy(), upper_bound.numpy())
+    msis_err = msis(x, y, lower_bound.numpy(), upper_bound.numpy())
+
+    return acd_err, msis_err
+
+def modify_augmentations(model, augmentations):
     
-    return loss_function(Y[:,:48], predictedY[:,:48]).numpy()
+    augmentations = augmentations[:model.features_number-1]
+    
+    for augmentation in augmentations:
+        if isinstance(augmentation, StdAugmentation):
+            augmentation.set_pi_params(model.pi_params)
 
+    return augmentations
 
-def load_and_evaluate_model(model_base_dir, training_data_dir, test_data_dir, x_augmentations, y_augmentations, loss_function):
+def load_and_evaluate_model(model_base_dir, training_data_dir, test_data_dir, x_augmentations, y_augmentations, loss_function,):
     model = M4Model()
     hyperparameters = model.load(model_base_dir)
 
-    x_augmentations = x_augmentations[:model.features_number-1]
-    y_augmentations = y_augmentations[:model.features_number-1]
+    # Modify augmentations based on trained model values
+    x_augmentations = modify_augmentations(model, x_augmentations)
+    y_augmentations = modify_augmentations(model, y_augmentations)
 
     data_loader = M4DataLoader(training_data_dir, test_data_dir, 
                            x_augmentations, 
@@ -92,6 +125,49 @@ def load_and_evaluate_model(model_base_dir, training_data_dir, test_data_dir, x_
     'snaive_test_error': round(snaive_test_error, 3),
     'naive_validation_error': round(naive_validation_error, 3),
     'snaive_validation_error': round(snaive_validation_error, 3)
+    }
+
+
+def load_and_evaluate_model_PI(model_base_dir, training_data_dir, test_data_dir, x_augmentations, y_augmentations, evaluation_function):
+    model = M4Model()
+    hyperparameters = model.load(model_base_dir)
+
+    # Modify augmentations based on trained model values
+    x_augmentations = modify_augmentations(model, x_augmentations)
+    y_augmentations = modify_augmentations(model, y_augmentations)
+
+    data_loader = M4DataLoader(training_data_dir, test_data_dir, 
+                           x_augmentations, 
+                           y_augmentations,
+                           model.lookback,  validation_ratio=0.05)
+
+
+    test_x, test_y = data_loader.get_test_data()
+    validate_x, validate_y = data_loader.get_validation_data()
+
+    acd_test, msis_test = evaluation_function(model, test_x, test_y)
+
+    if model.features_number == 1: test_x = test_x[:,:, np.newaxis]
+
+    acd_naive_test, msis_naive_test = evaluate_naive_PI(test_x[:,:,0], test_y[:,:48])
+
+    acd_validation, msis_validation = evaluation_function(model, validate_x, validate_y)
+
+    if model.features_number == 1: validate_x = validate_x[:,:, np.newaxis]
+    
+    acd_naive_validation, msis_naive_validation = evaluate_naive_PI(validate_x[:,:,0], validate_y[:,:48])
+
+    return {
+    'hyperparameters': hyperparameters,
+    'acd_test': round(acd_test,3), 
+    'acd_validation': round(acd_validation, 3),
+    'acd_naive_test': round(acd_naive_test, 3), 
+    'acd_naive_validation': round(acd_naive_validation, 3),
+
+    'msis_test': round(msis_test,3), 
+    'msis_validation': round(msis_validation, 3),
+    'msis_naive_test': round(msis_naive_test, 3), 
+    'msis_naive_validation': round(msis_naive_validation, 3),
     }
 
 def sort_by_prediction_error(model, X, Y, loss_function):

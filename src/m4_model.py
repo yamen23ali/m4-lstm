@@ -73,7 +73,9 @@ class M4Model(object):
         
         if samples_without_batch > 0:
             missing_samples = self.batch_size - samples_without_batch
-            X = np.concatenate((X, X[:missing_samples,:]), axis=0)
+            missing_samples_shape = (missing_samples,) + (1,)*len(X[0].shape)
+            complement = np.tile(X[0], missing_samples_shape)
+            X = np.concatenate((X, complement), axis=0)
 
         batches_number = int(X.shape[0] / self.batch_size)
 
@@ -155,7 +157,7 @@ class M4Model(object):
 
     def __load_hyperparameters(self, hyperparameters):
         try:
-            
+
             self.epochs = hyperparameters['epochs']
             self.batch_size = hyperparameters['batch_size']
             self.hidden_layer_size = hyperparameters['hidden_layer_size']
@@ -167,6 +169,6 @@ class M4Model(object):
             self.learning_rate = hyperparameters['learning_rate']
 
         except Exception as e:
-            print(e)
+            print(f'Missing key{e}')
 
     

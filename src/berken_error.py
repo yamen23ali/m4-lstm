@@ -1,7 +1,7 @@
 import tensorflow as tf
 import numpy as np
 
-from src.error_functions import *
+from src.training_loss_functions import *
 from tensorflow.keras import backend as K
 
 lambda_ = 24 # lambda in loss fn

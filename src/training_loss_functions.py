@@ -30,6 +30,13 @@ def kl_divergance_diff(yTrue, yPred):
 
 	return  tf.add(err, mase(yTrue[:,:96], yPred[:,:96]))
 
+def naive_error(yTrue):
+	return tf.reduce_mean(tf.abs(yTrue[:,1:] - yTrue[:,:-1]), axis=1)
+
+def mase(yTrue, yPred):
+	naive_err = naive_error(yTrue)
+	return mae(yTrue, yPred)[:,np.newaxis] / naive_err[:,np.newaxis]
+	
 def mae(yTrue, yPred):
 	return tf.reduce_mean(tf.abs(yTrue - yPred), axis=1)
 

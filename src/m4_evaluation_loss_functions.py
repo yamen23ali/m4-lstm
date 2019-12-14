@@ -12,7 +12,7 @@ def s_naive_error(X, freq= 24):
     
     return 1/(n - freq) * np.abs(X1 - X2).sum(axis=1)
 
-def mase(in_sample, yTrue, yPred):
+def m4_mase(in_sample, yTrue, yPred):
     naive_err = s_naive_error(in_sample)[:,np.newaxis]
     naive_err[naive_err == 0.0] = 0.001 # Just to avoid getting inf
 
