@@ -93,6 +93,8 @@ class M4DataLoader(object):
         
         raw_train_data = read_raw_data(train_data_path)
         raw_test_data = read_raw_data(test_data_path)
+        self.raw_x = raw_train_data
+        self.raw_y = raw_test_data
         complete_data = self.__merge_and_standarize(raw_train_data, raw_test_data)
 
         validation_data_size = int (complete_data.shape[0]*self.validation_ratio)

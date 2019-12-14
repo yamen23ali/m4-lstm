@@ -154,14 +154,19 @@ class M4Model(object):
         }
 
     def __load_hyperparameters(self, hyperparameters):
-        self.epochs = hyperparameters['epochs']
-        self.batch_size = hyperparameters['batch_size']
-        self.hidden_layer_size = hyperparameters['hidden_layer_size']
-        self.lookback = hyperparameters['lookback']
-        self.dropout_ratio = hyperparameters['dropout_ratio']
-        self.features_number = hyperparameters['features_number']
-        self.output_size = hyperparameters['output_size']
-        self.pi_params = hyperparameters['pi_params']
-        #self.learning_rate = hyperparameters['learning_rate']
+        try:
+            
+            self.epochs = hyperparameters['epochs']
+            self.batch_size = hyperparameters['batch_size']
+            self.hidden_layer_size = hyperparameters['hidden_layer_size']
+            self.lookback = hyperparameters['lookback']
+            self.dropout_ratio = hyperparameters['dropout_ratio']
+            self.features_number = hyperparameters['features_number']
+            self.output_size = hyperparameters['output_size']
+            self.pi_params = hyperparameters['pi_params']
+            self.learning_rate = hyperparameters['learning_rate']
+
+        except Exception as e:
+            print(e)
 
     
