@@ -9,13 +9,37 @@ from tensorflow.keras import backend as K
 
 class M4DataLoader(object):
 
-    def __init__(self, train_data_path, test_data_path, lookback=48, horizon=48, validation_ratio = 0.05):
+    def __init__(self, train_data_path, test_data_path, x_augmentations =[], y_augmentations = [], lookback=48, horizon=48, validation_ratio = 0.05):
         
         self.validation_ratio = validation_ratio
         self.lookback = lookback
         self.horizon = horizon
+        self.x_augmentations = x_augmentations
+        self.y_augmentations = y_augmentations
         
         self.__load_data(train_data_path, test_data_path)
+
+
+    def get_training_data(self):
+        X, Y = self.__build_from_series(self.train_test_data[:,:self.train_serie_length])
+
+        return self.__apply_x_augmentations(X), self.__apply_y_augmentations(Y)
+
+    def get_test_data(self):
+        X, Y= self.__build_from_series_pairs(self.train_test_data[:,:self.train_serie_length],
+            self.train_test_data[:,-self.test_serie_length:])
+
+        return self.__apply_x_augmentations(X), self.__apply_y_augmentations(Y)
+
+    def get_validation_data(self):
+        X1, Y1 = self.__build_from_series(self.validation_data[:,:self.train_serie_length])
+        X2, Y2 = self.__build_from_series_pairs(self.validation_data[:,:self.train_serie_length],
+            self.validation_data[:,-self.test_serie_length:])
+
+        X = np.concatenate((X1, X2), axis=0)
+        Y = np.concatenate((Y1, Y2), axis=0)
+
+        return self.__apply_x_augmentations(X), self.__apply_y_augmentations(Y)
     
     
     def __merge_and_standarize(self,raw_train_data, raw_test_data):
@@ -69,6 +93,8 @@ class M4DataLoader(object):
         
         raw_train_data = read_raw_data(train_data_path)
         raw_test_data = read_raw_data(test_data_path)
+        self.raw_x = raw_train_data
+        self.raw_y = raw_test_data
         complete_data = self.__merge_and_standarize(raw_train_data, raw_test_data)
 
         validation_data_size = int (complete_data.shape[0]*self.validation_ratio)
@@ -79,40 +105,19 @@ class M4DataLoader(object):
         self.train_serie_length = raw_train_data.shape[1]
         self.test_serie_length = raw_test_data.shape[1]
 
-
-    def __get_diff(self, data):
-        shifted_data = np.hstack((data[:,1:], data[:,-1][:,np.newaxis]))
-        return shifted_data - data
-
-    def __augment_diff_x(self, data):
-        diff = self.__get_diff(data)
-        return np.dstack((data, diff))
-
-    def __augment_diff_y(self, data):
-        diff = self.__get_diff(data)
-        return np.hstack((data, diff))
-
-    def get_training_data(self):
-        X, Y = self.__build_from_series(self.train_test_data[:,:self.train_serie_length])
-
-        return self.__augment_diff_x(X), self.__augment_diff_y(Y)
+    def __apply_x_augmentations(self, data):
+        augmented_data = data
+        for augmentation in self.x_augmentations:
+            augmented_data = np.dstack((augmented_data, augmentation.create(data) ))
         
+        return augmented_data
 
-    def get_test_data(self):
-        X, Y= self.__build_from_series_pairs(self.train_test_data[:,:self.train_serie_length],
-            self.train_test_data[:,-self.test_serie_length:])
+    def __apply_y_augmentations(self, data):
+        augmented_data = data
+        for augmentation in self.x_augmentations:
+            augmented_data = np.hstack((augmented_data, augmentation.create(data)))
+        
+        return augmented_data
 
-        return self.__augment_diff_x(X), self.__augment_diff_y(Y)
-        #return X, Y
-
-    def get_validation_data(self):
-        X1, Y1 = self.__build_from_series(self.validation_data[:,:self.train_serie_length])
-        X2, Y2 = self.__build_from_series_pairs(self.validation_data[:,:self.train_serie_length],
-            self.validation_data[:,-self.test_serie_length:])
-
-        X = np.concatenate((X1, X2), axis=0)
-        Y = np.concatenate((Y1, Y2), axis=0)
-
-        return self.__augment_diff_x(X), self.__augment_diff_y(Y)
-        #return X, Y
+    
 

@@ -52,3 +52,13 @@ def exponential_smoothing(data, forcasting_horizon=48, seasonal_periods=24, seas
 
     return fitted_model.forecast(forcasting_horizon)
 
+def naive_pi(data):
+    predictions = data[:,1:]
+    predictions_std = np.std(predictions, axis = 1)
+    intervals = (predictions_std*1.96)[:,np.newaxis]
+    upper = predictions + intervals
+    lower = predictions - intervals
+
+    return lower, upper
+
+

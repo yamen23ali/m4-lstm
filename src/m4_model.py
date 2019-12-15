@@ -1,6 +1,7 @@
 import keras
 import tensorflow as tf
 import json
+import numpy as np
 
 from src.utils import create_model_dir
 
@@ -15,7 +16,7 @@ from keras.models import model_from_json
 class M4Model(object):
 
     def __init__(self, hidden_layer_size=100, batch_size=50, lookback=48, 
-        output_size=48, learning_rate=0.001, loss='mae', dropout_ratio=0.0, features_number = 1):
+        output_size=48, learning_rate=0.001, loss='mae', dropout_ratio=0.0, features_number = 1, pi_params={}, callbacks=[]):
 
         self.architecture_file_name = 'architecture.json'
         self.weights_file_name = 'weights.h5'
@@ -29,43 +30,28 @@ class M4Model(object):
         self.loss = loss
         self.dropout_ratio = dropout_ratio
         self.features_number = features_number
+        self.pi_params = pi_params
+        self.callbacks = callbacks
 
         self.model = Sequential()
 
 
-        self.model.add(LSTM(hidden_layer_size, batch_input_shape=(batch_size, lookback, features_number), return_sequences=True, activation='tanh',
-             kernel_initializer=keras.initializers.RandomNormal(mean=0.0, stddev=0.2), recurrent_dropout=dropout_ratio))
+        #self.model.add(LSTM(hidden_layer_size, batch_input_shape=(batch_size, lookback, features_number), return_sequences=True, activation='tanh',
+        #   kernel_initializer=keras.initializers.RandomNormal(mean=0.0, stddev=0.1), recurrent_dropout=dropout_ratio))
 
-        self.model.add(LSTM(hidden_layer_size, batch_input_shape=(batch_size, lookback,features_number), return_sequences=True, activation='tanh',
-             kernel_initializer=keras.initializers.RandomNormal(mean=0.0, stddev=0.2), recurrent_dropout=dropout_ratio))
+        #self.model.add(LSTM(hidden_layer_size, batch_input_shape=(batch_size, lookback,features_number), return_sequences=True, activation='tanh',
+        #   kernel_initializer=keras.initializers.RandomNormal(mean=0.0, stddev=0.3), recurrent_dropout=dropout_ratio))
 
         self.model.add(LSTM(hidden_layer_size, batch_input_shape=(batch_size, lookback,features_number),  activation='tanh',
-              kernel_initializer=keras.initializers.RandomNormal(mean=0.0, stddev=0.2), recurrent_dropout=dropout_ratio))
+              kernel_initializer=keras.initializers.RandomNormal(mean=0.0, stddev=0.5), recurrent_dropout=dropout_ratio))
 
         self.model.add(Dense(output_size, activation='linear',
-                kernel_initializer=keras.initializers.RandomNormal(mean=0.0, stddev=0.3)))
+                kernel_initializer=keras.initializers.RandomNormal(mean=0.0, stddev=0.2)))
 
-        self.opt = optimizers.RMSprop(lr=learning_rate)#, clipvalue=0.3)
-        #opt = optimizers.SGD(lr=0.01, decay=1e-2, momentum=0.7, nesterov=True)
+        self.opt = optimizers.RMSprop(lr=learning_rate)#, decay=0.001)#, clipvalue=0.5)#, decay=0.5/20.0, clipvalue=0.3) #decay=0.1/20.0, ) #, clipvalue=1.5) #, decay=1e-3, clipvalue=0.1) #  clipvalue=0.1) #
+        #self.opt = optimizers.SGD(lr=learning_rate, decay=1e-2, momentum=0.7, nesterov=True)
 
         self.model.compile(loss=self.loss, optimizer=self.opt)
-
-    def __get_hyper_parameters_dict(self):
-        loss_name = self.loss
-
-        if not isinstance(self.loss, str):
-            loss_name = self.loss.__name__
-        
-        return {
-            'epochs': self.epochs,
-            'batch_size': self.batch_size,
-            'hidden_layer_size': self.hidden_layer_size,
-            'lookback': self.lookback, 
-            'loss': loss_name,
-            'dropout_ratio': self.dropout_ratio,
-            'features_number': self.features_number,
-            'output_size': self.output_size
-        }
 
     def compile(self):
         self.model.compile(loss=self.loss, optimizer=self.opt)
@@ -77,10 +63,32 @@ class M4Model(object):
             validation_data = test_data_generator,
             validation_steps=test_data_generator.steps_per_epoch(),
             steps_per_epoch=training_data_generator.steps_per_epoch(), 
-            epochs=epochs)
+            epochs=epochs, callbacks= self.callbacks)
 
     def predict(self, X):
-        return self.model.predict(X, batch_size = self.batch_size)
+        predictions = np.empty(shape=[0, self.output_size])
+        missing_samples = 0
+
+        samples_without_batch = X.shape[0] % self.batch_size
+        
+        if samples_without_batch > 0:
+            missing_samples = self.batch_size - samples_without_batch
+            missing_samples_shape = (missing_samples,) + (1,)*len(X[0].shape)
+            complement = np.tile(X[0], missing_samples_shape)
+            X = np.concatenate((X, complement), axis=0)
+
+        batches_number = int(X.shape[0] / self.batch_size)
+
+        X = X.reshape(-1, self.batch_size, X.shape[1], self.features_number)
+
+        for x_batch in X:
+            batch_predictions = self.model.predict(x_batch, batch_size = self.batch_size)
+            predictions = np.concatenate((predictions, batch_predictions), axis = 0)
+        
+        if missing_samples > 0:
+            return predictions[:-missing_samples,:]
+
+        return predictions
 
     def evaluate(self, validation_data_generator):
         return self.model.evaluate(validation_data_generator)
@@ -101,7 +109,11 @@ class M4Model(object):
 
         # load and return hyperparameters
         with open(model_hyperparameters_path, "r") as json_file:
-            return json.loads(json_file.read())
+            hyperparameters =  json.loads(json_file.read())
+            self.__load_hyperparameters(hyperparameters)
+
+            return hyperparameters
+
 
     def save(self, base_dir):
         model_dir = create_model_dir(base_dir)
@@ -123,4 +135,40 @@ class M4Model(object):
             json.dump(hp, file)
         
         print(f'Saved model files to disk under{model_dir}')
+
+    def __get_hyper_parameters_dict(self):
+        loss_name = self.loss
+
+        if not isinstance(self.loss, str):
+            loss_name = self.loss.__name__
+        
+        return {
+            'epochs': self.epochs,
+            'learning_rate': self.learning_rate,
+            'batch_size': self.batch_size,
+            'hidden_layer_size': self.hidden_layer_size,
+            'lookback': self.lookback, 
+            'loss': loss_name,
+            'dropout_ratio': self.dropout_ratio,
+            'features_number': self.features_number,
+            'output_size': self.output_size,
+            'pi_params': self.pi_params
+        }
+
+    def __load_hyperparameters(self, hyperparameters):
+        try:
+
+            self.epochs = hyperparameters['epochs']
+            self.batch_size = hyperparameters['batch_size']
+            self.hidden_layer_size = hyperparameters['hidden_layer_size']
+            self.lookback = hyperparameters['lookback']
+            self.dropout_ratio = hyperparameters['dropout_ratio']
+            self.features_number = hyperparameters['features_number']
+            self.output_size = hyperparameters['output_size']
+            self.pi_params = hyperparameters['pi_params']
+            self.learning_rate = hyperparameters['learning_rate']
+
+        except Exception as e:
+            print(f'Missing key{e}')
+
     
