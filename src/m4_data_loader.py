@@ -90,20 +90,19 @@ class M4DataLoader(object):
         return data_x, data_y
     
     def __load_data(self, train_data_path, test_data_path):
-        
-        raw_train_data = read_raw_data(train_data_path)
-        raw_test_data = read_raw_data(test_data_path)
-        self.raw_x = raw_train_data
-        self.raw_y = raw_test_data
-        complete_data = self.__merge_and_standarize(raw_train_data, raw_test_data)
+
+        self.raw_train_data = read_raw_data(train_data_path)
+        self.raw_test_data = read_raw_data(test_data_path)
+
+        complete_data = self.__merge_and_standarize(self.raw_train_data, self.raw_test_data)
 
         validation_data_size = int (complete_data.shape[0]*self.validation_ratio)
 
         self.train_test_data = complete_data[:-validation_data_size,:]
         self.validation_data = complete_data[-validation_data_size:,:]
 
-        self.train_serie_length = raw_train_data.shape[1]
-        self.test_serie_length = raw_test_data.shape[1]
+        self.train_serie_length = self.raw_train_data.shape[1]
+        self.test_serie_length = self.raw_test_data.shape[1]
 
     def __apply_x_augmentations(self, data):
         augmented_data = data

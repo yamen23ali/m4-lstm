@@ -25,7 +25,7 @@ def plot_series(x, y, predictedY, series_num = 3):
     axs[1].axvline(x=x.shape[1], color='r')
 
 
-def plot_serie_and_prediction(x, y, predictedY, serie_indx = 0):
+def plot_serie_and_prediction(x, y, predictedY, serie_indx = 0, save_path = ''):
     fig, axs = plt.subplots(1, 1, figsize=(40, 20))
     
     true_series_time_axes = np.arange(0, x.shape[1] + y.shape[1] )
@@ -41,6 +41,9 @@ def plot_serie_and_prediction(x, y, predictedY, serie_indx = 0):
     axs.set_ylabel('Value', fontsize=20)    
     axs.set_title('True Values & Point Predictions', fontsize=20)
     axs.legend(['True Serie', 'Predicted Serie'], prop={'size': 30})
+
+    if save_path !='':
+        plt.savefig(save_path)
 
 def plot_m4_complete_series(training_file_path, test_file_path):
 
@@ -59,7 +62,7 @@ def plot_m4_complete_series(training_file_path, test_file_path):
         plt.show()
 
 
-def plot_serie_with_bounds(x, y, predictedY, lower_bound, upper_bound, serie_indx = 0):
+def plot_serie_with_bounds(x, y, predictedY, lower_bound, upper_bound, serie_indx = 0, save_path = ''):
     
     fig, axs = plt.subplots(1, 1, figsize=(40, 20))
     
@@ -78,4 +81,7 @@ def plot_serie_with_bounds(x, y, predictedY, lower_bound, upper_bound, serie_ind
     axs.set_ylabel('Value', fontsize=20)    
     axs.set_title('True Values & Point Predictions', fontsize=20)
     axs.legend(['True Serie', 'Predicted Serie'], prop={'size': 30})
+
+    if save_path !='':
+        plt.savefig(save_path)
 
