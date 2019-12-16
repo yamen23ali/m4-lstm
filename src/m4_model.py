@@ -60,8 +60,8 @@ class M4Model(object):
         self.epochs = epochs
 
         return self.model.fit_generator(training_data_generator,
-            validation_data = test_data_generator,
-            validation_steps=test_data_generator.steps_per_epoch(),
+            holdout_data = test_data_generator,
+            holdout_steps=test_data_generator.steps_per_epoch(),
             steps_per_epoch=training_data_generator.steps_per_epoch(), 
             epochs=epochs, callbacks= self.callbacks)
 
@@ -90,8 +90,8 @@ class M4Model(object):
 
         return predictions
 
-    def evaluate(self, validation_data_generator):
-        return self.model.evaluate(validation_data_generator)
+    def evaluate(self, holdout_data_generator):
+        return self.model.evaluate(holdout_data_generator)
 
     def load(self, model_dir):
         model_json_path = f'{model_dir}/{self.architecture_file_name}'

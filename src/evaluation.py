@@ -96,11 +96,11 @@ def load_and_evaluate_model(model_base_dir, training_data_dir, test_data_dir, x_
     data_loader = M4DataLoader(training_data_dir, test_data_dir, 
                            x_augmentations, 
                            y_augmentations,
-                           model.lookback,  validation_ratio=0.05)
+                           model.lookback,  holdout_ratio=0.05)
 
 
     test_x, test_y = data_loader.get_test_data()
-    validate_x, validate_y = data_loader.get_validation_data()
+    validate_x, validate_y = data_loader.get_holdout_data()
 
     test_error = evaluate_model(model, test_x, test_y, loss_function).mean()
 
@@ -109,22 +109,22 @@ def load_and_evaluate_model(model_base_dir, training_data_dir, test_data_dir, x_
     naive_test_error = evaluate_naive(test_x[:,:,0], test_y[:,:48])
     snaive_test_error = evaluate_snaive(test_x[:,:,0], test_y[:,:48])
 
-    validation_error = evaluate_model(model, validate_x, validate_y, loss_function).mean()
+    holdout_error = evaluate_model(model, validate_x, validate_y, loss_function).mean()
 
     if model.features_number == 1: validate_x = validate_x[:,:, np.newaxis]
     
-    naive_validation_error = evaluate_naive(validate_x[:,:,0], validate_y[:,:48])
-    snaive_validation_error = evaluate_snaive(validate_x[:,:,0], validate_y[:,:48])
+    naive_holdout_error = evaluate_naive(validate_x[:,:,0], validate_y[:,:48])
+    snaive_holdout_error = evaluate_snaive(validate_x[:,:,0], validate_y[:,:48])
 
 
     return {
     'hyperparameters': hyperparameters,
     'test_error': round(test_error,3), 
-    'validation_error': round(validation_error, 3),
+    'holdout_error': round(holdout_error, 3),
     'naive_test_error': round(naive_test_error, 3), 
     'snaive_test_error': round(snaive_test_error, 3),
-    'naive_validation_error': round(naive_validation_error, 3),
-    'snaive_validation_error': round(snaive_validation_error, 3)
+    'naive_holdout_error': round(naive_holdout_error, 3),
+    'snaive_holdout_error': round(snaive_holdout_error, 3)
     }
 
 
@@ -139,11 +139,11 @@ def load_and_evaluate_model_PI(model_base_dir, training_data_dir, test_data_dir,
     data_loader = M4DataLoader(training_data_dir, test_data_dir, 
                            x_augmentations, 
                            y_augmentations,
-                           model.lookback,  validation_ratio=0.05)
+                           model.lookback,  holdout_ratio=0.05)
 
 
     test_x, test_y = data_loader.get_test_data()
-    validate_x, validate_y = data_loader.get_validation_data()
+    validate_x, validate_y = data_loader.get_holdout_data()
 
     acd_test, msis_test = evaluation_function(model, test_x, test_y)
 
@@ -151,23 +151,23 @@ def load_and_evaluate_model_PI(model_base_dir, training_data_dir, test_data_dir,
 
     acd_naive_test, msis_naive_test = evaluate_naive_PI(test_x[:,:,0], test_y[:,:48])
 
-    acd_validation, msis_validation = evaluation_function(model, validate_x, validate_y)
+    acd_holdout, msis_holdout = evaluation_function(model, validate_x, validate_y)
 
     if model.features_number == 1: validate_x = validate_x[:,:, np.newaxis]
     
-    acd_naive_validation, msis_naive_validation = evaluate_naive_PI(validate_x[:,:,0], validate_y[:,:48])
+    acd_naive_holdout, msis_naive_holdout = evaluate_naive_PI(validate_x[:,:,0], validate_y[:,:48])
 
     return {
     'hyperparameters': hyperparameters,
     'acd_test': round(acd_test,3), 
-    'acd_validation': round(acd_validation, 3),
+    'acd_holdout': round(acd_holdout, 3),
     'acd_naive_test': round(acd_naive_test, 3), 
-    'acd_naive_validation': round(acd_naive_validation, 3),
+    'acd_naive_holdout': round(acd_naive_holdout, 3),
 
     'msis_test': round(msis_test,3), 
-    'msis_validation': round(msis_validation, 3),
+    'msis_holdout': round(msis_holdout, 3),
     'msis_naive_test': round(msis_naive_test, 3), 
-    'msis_naive_validation': round(msis_naive_validation, 3),
+    'msis_naive_holdout': round(msis_naive_holdout, 3),
     }
 
 def sort_by_prediction_error(model, X, Y, loss_function):

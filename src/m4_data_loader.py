@@ -9,9 +9,9 @@ from tensorflow.keras import backend as K
 
 class M4DataLoader(object):
 
-    def __init__(self, train_data_path, test_data_path, x_augmentations =[], y_augmentations = [], lookback=48, horizon=48, validation_ratio = 0.05):
+    def __init__(self, train_data_path, test_data_path, x_augmentations =[], y_augmentations = [], lookback=48, horizon=48, holdout_ratio = 0.05):
         
-        self.validation_ratio = validation_ratio
+        self.holdout_ratio = holdout_ratio
         self.lookback = lookback
         self.horizon = horizon
         self.x_augmentations = x_augmentations
@@ -31,10 +31,10 @@ class M4DataLoader(object):
 
         return self.__apply_x_augmentations(X), self.__apply_y_augmentations(Y)
 
-    def get_validation_data(self):
-        X1, Y1 = self.__build_from_series(self.validation_data[:,:self.train_serie_length])
-        X2, Y2 = self.__build_from_series_pairs(self.validation_data[:,:self.train_serie_length],
-            self.validation_data[:,-self.test_serie_length:])
+    def get_holdout_data(self):
+        X1, Y1 = self.__build_from_series(self.holdout_data[:,:self.train_serie_length])
+        X2, Y2 = self.__build_from_series_pairs(self.holdout_data[:,:self.train_serie_length],
+            self.holdout_data[:,-self.test_serie_length:])
 
         X = np.concatenate((X1, X2), axis=0)
         Y = np.concatenate((Y1, Y2), axis=0)
@@ -96,10 +96,10 @@ class M4DataLoader(object):
 
         complete_data = self.__merge_and_standarize(self.raw_train_data, self.raw_test_data)
 
-        validation_data_size = int (complete_data.shape[0]*self.validation_ratio)
+        holdout_data_size = int (complete_data.shape[0]*self.holdout_ratio)
 
-        self.train_test_data = complete_data[:-validation_data_size,:]
-        self.validation_data = complete_data[-validation_data_size:,:]
+        self.train_test_data = complete_data[:-holdout_data_size,:]
+        self.holdout_data = complete_data[-holdout_data_size:,:]
 
         self.train_serie_length = self.raw_train_data.shape[1]
         self.test_serie_length = self.raw_test_data.shape[1]

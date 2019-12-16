@@ -48,7 +48,7 @@ except Exception as e:
 
 #=============== Load Data
 data_loader = M4DataLoader("Dataset/Train/Hourly-train.csv", "Dataset/Test/Hourly-test.csv",
-                  LOOKBACK, HORIZON, validation_ratio=0.05)
+                  LOOKBACK, HORIZON, holdout_ratio=0.05)
 
 train_x, train_y = data_loader.get_training_data()
 training_data_generator = M4Generator(train_x, train_y, BATCH_SIZE)
@@ -56,8 +56,8 @@ training_data_generator = M4Generator(train_x, train_y, BATCH_SIZE)
 test_x, test_y = data_loader.get_test_data()
 test_data_generator = M4Generator(test_x, test_y, BATCH_SIZE)
 
-validate_x, validate_y = data_loader.get_validation_data()
-validation_data_generator = M4Generator(validate_x, validate_y, BATCH_SIZE)
+validate_x, validate_y = data_loader.get_holdout_data()
+holdout_data_generator = M4Generator(validate_x, validate_y, BATCH_SIZE)
 
 #=============== Define and Train Model
 
@@ -66,7 +66,7 @@ model = M4Model(hidden_layer_size=HIDDEN_LAYER_SIZE, batch_size=BATCH_SIZE, look
 
 model.train(training_data_generator, test_data_generator, epochs=EPOCHS)
 
-evaluation_loss = model.evaluate(validation_data_generator)
+evaluation_loss = model.evaluate(holdout_data_generator)
 
 print(f'Evaluation loss is : {evaluation_loss}')
 
