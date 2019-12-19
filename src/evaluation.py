@@ -43,7 +43,7 @@ def evaluate_model(model, X, Y, loss_function):
 
     predictedY = model.predict(X)
 
-    if model.features_number == 1: 
+    if model.features_number == 1:
         X = X[:,:, np.newaxis]
 
     return loss_function(X[:,:,0], Y[:,:48], predictedY[:,:48]).numpy().mean()

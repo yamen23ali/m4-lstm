@@ -9,9 +9,8 @@ from tensorflow.keras import backend as K
 
 class M4DataLoader(object):
 
-    def __init__(self, train_data_path, test_data_path, x_augmentations =[], y_augmentations = [], lookback=48, horizon=48, holdout_ratio = 0.05):
+    def __init__(self, train_data_path, test_data_path, x_augmentations =[], y_augmentations = [], lookback=48, horizon=48):
         
-        self.holdout_ratio = holdout_ratio
         self.lookback = lookback
         self.horizon = horizon
         self.x_augmentations = x_augmentations
@@ -31,26 +30,25 @@ class M4DataLoader(object):
 
         return self.__apply_x_augmentations(X), self.__apply_y_augmentations(Y)
 
-    def get_holdout_data(self):
-        X1, Y1 = self.__build_from_series(self.holdout_data[:,:self.train_serie_length])
-        X2, Y2 = self.__build_from_series_pairs(self.holdout_data[:,:self.train_serie_length],
-            self.holdout_data[:,-self.test_serie_length:])
+    def unstandarize_predictions(self, predictions):
 
-        X = np.concatenate((X1, X2), axis=0)
-        Y = np.concatenate((Y1, Y2), axis=0)
 
-        return self.__apply_x_augmentations(X), self.__apply_y_augmentations(Y)
-    
+        data = self.train_test_data[:,:-48]
+
+        complete_data = np.concatenate((data, predictions), axis=1).T
+        unstandarize_data = self.scaler.inverse_transform(complete_data).T
+        
+        return unstandarize_data[:,-48:]
     
     def __merge_and_standarize(self,raw_train_data, raw_test_data):
         
         # Join train and test to standarize together
         complete_data = np.concatenate((raw_train_data, raw_test_data), axis=1).T
         
-        scaler = StandardScaler()
-        scaler.fit(complete_data)
+        self.scaler = StandardScaler()
+        self.scaler.fit(complete_data)
 
-        return scaler.transform(complete_data).T
+        return self.scaler.transform(complete_data).T
     
     def __build_from_series(self, train_data):
         
@@ -94,12 +92,7 @@ class M4DataLoader(object):
         self.raw_train_data = read_raw_data(train_data_path)
         self.raw_test_data = read_raw_data(test_data_path)
 
-        complete_data = self.__merge_and_standarize(self.raw_train_data, self.raw_test_data)
-
-        holdout_data_size = int (complete_data.shape[0]*self.holdout_ratio)
-
-        self.train_test_data = complete_data[:-holdout_data_size,:]
-        self.holdout_data = complete_data[-holdout_data_size:,:]
+        self.train_test_data = self.__merge_and_standarize(self.raw_train_data, self.raw_test_data)
 
         self.train_serie_length = self.raw_train_data.shape[1]
         self.test_serie_length = self.raw_test_data.shape[1]
