@@ -16,7 +16,8 @@ from keras.models import model_from_json
 class M4Model(object):
 
     def __init__(self, hidden_layer_size=100, batch_size=50, lookback=48, 
-        output_size=48, learning_rate=0.001, loss='mae', dropout_ratio=0.0, features_number = 1, pi_params={}, callbacks=[]):
+        output_size=48, learning_rate=0.001, loss='mae', dropout_ratio=0.0, features_number = 1, 
+        clipvalue=3, pi_params={}, callbacks=[]):
 
         self.architecture_file_name = 'architecture.json'
         self.weights_file_name = 'weights.h5'
@@ -30,17 +31,18 @@ class M4Model(object):
         self.loss = loss
         self.dropout_ratio = dropout_ratio
         self.features_number = features_number
+        self.clipvalue = clipvalue
         self.pi_params = pi_params
         self.callbacks = callbacks
 
         self.model = Sequential()
 
 
-        #self.model.add(LSTM(hidden_layer_size, batch_input_shape=(batch_size, lookback, features_number), return_sequences=True, activation='tanh',
-        #   kernel_initializer=keras.initializers.RandomNormal(mean=0.0, stddev=0.1), recurrent_dropout=dropout_ratio))
+        self.model.add(LSTM(hidden_layer_size, batch_input_shape=(batch_size, lookback, features_number), return_sequences=True, activation='tanh',
+           kernel_initializer=keras.initializers.RandomNormal(mean=0.0, stddev=0.1), recurrent_dropout=dropout_ratio))
 
-        #self.model.add(LSTM(hidden_layer_size, batch_input_shape=(batch_size, lookback,features_number), return_sequences=True, activation='tanh',
-        #   kernel_initializer=keras.initializers.RandomNormal(mean=0.0, stddev=0.3), recurrent_dropout=dropout_ratio))
+        self.model.add(LSTM(hidden_layer_size, batch_input_shape=(batch_size, lookback,features_number), return_sequences=True, activation='tanh',
+           kernel_initializer=keras.initializers.RandomNormal(mean=0.0, stddev=0.3), recurrent_dropout=dropout_ratio))
 
         self.model.add(LSTM(hidden_layer_size, batch_input_shape=(batch_size, lookback,features_number),  activation='tanh',
               kernel_initializer=keras.initializers.RandomNormal(mean=0.0, stddev=0.5), recurrent_dropout=dropout_ratio))
@@ -48,7 +50,7 @@ class M4Model(object):
         self.model.add(Dense(output_size, activation='linear',
                 kernel_initializer=keras.initializers.RandomNormal(mean=0.0, stddev=0.2)))
 
-        self.opt = optimizers.RMSprop(lr=learning_rate)#, decay=0.001)#, clipvalue=0.5)#, decay=0.5/20.0, clipvalue=0.3) #decay=0.1/20.0, ) #, clipvalue=1.5) #, decay=1e-3, clipvalue=0.1) #  clipvalue=0.1) #
+        self.opt = optimizers.RMSprop(lr=learning_rate, clipvalue=clipvalue)
         #self.opt = optimizers.SGD(lr=learning_rate, decay=1e-2, momentum=0.7, nesterov=True)
 
         self.model.compile(loss=self.loss, optimizer=self.opt)
@@ -60,8 +62,8 @@ class M4Model(object):
         self.epochs = epochs
 
         return self.model.fit_generator(training_data_generator,
-            holdout_data = test_data_generator,
-            holdout_steps=test_data_generator.steps_per_epoch(),
+            validation_data = test_data_generator,
+            validation_steps=test_data_generator.steps_per_epoch(),
             steps_per_epoch=training_data_generator.steps_per_epoch(), 
             epochs=epochs, callbacks= self.callbacks)
 
@@ -151,6 +153,7 @@ class M4Model(object):
             'loss': loss_name,
             'dropout_ratio': self.dropout_ratio,
             'features_number': self.features_number,
+            'clipvalue': self.clipvalue,
             'output_size': self.output_size,
             'pi_params': self.pi_params
         }
@@ -164,6 +167,7 @@ class M4Model(object):
             self.lookback = hyperparameters['lookback']
             self.dropout_ratio = hyperparameters['dropout_ratio']
             self.features_number = hyperparameters['features_number']
+            self.clipvalue = hyperparameters['clipvalue']
             self.output_size = hyperparameters['output_size']
             self.pi_params = hyperparameters['pi_params']
             self.learning_rate = hyperparameters['learning_rate']

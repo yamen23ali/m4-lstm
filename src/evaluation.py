@@ -174,8 +174,7 @@ def sort_by_prediction_error(model, X, Y, loss_function):
 
     predictedY = model.predict(X)
 
-    errors = loss_function(Y[:,:48], predictedY[:,:48]).numpy()
-    
+    errors = loss_function(Y[:,:48], predictedY[:,:48]).numpy().flatten()
     # Ascending sorting for serires based on prediction error
     sorted_errors_indx = errors.argsort()
 
