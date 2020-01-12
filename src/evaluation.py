@@ -85,7 +85,9 @@ def modify_augmentations(model, augmentations):
 
     return augmentations
 
-def load_and_evaluate_model(model_base_dir, training_data_dir, test_data_dir, x_augmentations, y_augmentations, loss_function,):
+def load_and_evaluate_model(model_base_dir, train_path, test_path,
+    train_holdout_path, test_holdout_path,x_augmentations, y_augmentations, loss_function,):
+    
     model = M4Model()
     hyperparameters = model.load(model_base_dir)
 
@@ -93,14 +95,12 @@ def load_and_evaluate_model(model_base_dir, training_data_dir, test_data_dir, x_
     x_augmentations = modify_augmentations(model, x_augmentations)
     y_augmentations = modify_augmentations(model, y_augmentations)
 
-    data_loader = M4DataLoader(training_data_dir, test_data_dir, 
-                           x_augmentations, 
-                           y_augmentations,
-                           model.lookback,  holdout_ratio=0.05)
+    data_loader = M4DataLoader(train_path, test_path, train_holdout_path, test_holdout_path,
+        x_augmentations, y_augmentations, model.lookback)
 
 
     test_x, test_y = data_loader.get_test_data()
-    validate_x, validate_y = data_loader.get_holdout_data()
+    holdout_x, holdout_y = data_loader.get_holdout_data()
 
     test_error = evaluate_model(model, test_x, test_y, loss_function).mean()
 
@@ -109,12 +109,12 @@ def load_and_evaluate_model(model_base_dir, training_data_dir, test_data_dir, x_
     naive_test_error = evaluate_naive(test_x[:,:,0], test_y[:,:48])
     snaive_test_error = evaluate_snaive(test_x[:,:,0], test_y[:,:48])
 
-    holdout_error = evaluate_model(model, validate_x, validate_y, loss_function).mean()
+    holdout_error = evaluate_model(model, holdout_x, holdout_y, loss_function).mean()
 
-    if model.features_number == 1: validate_x = validate_x[:,:, np.newaxis]
+    if model.features_number == 1: holdout_x = holdout_x[:,:, np.newaxis]
     
-    naive_holdout_error = evaluate_naive(validate_x[:,:,0], validate_y[:,:48])
-    snaive_holdout_error = evaluate_snaive(validate_x[:,:,0], validate_y[:,:48])
+    naive_holdout_error = evaluate_naive(holdout_x[:,:,0], holdout_y[:,:48])
+    snaive_holdout_error = evaluate_snaive(holdout_x[:,:,0], holdout_y[:,:48])
 
 
     return {
@@ -184,3 +184,34 @@ def sort_by_prediction_error(model, X, Y, loss_function):
     errors = errors[sorted_errors_indx]
     
     return X, Y, predictedY, errors
+
+def predict_and_save(model_dir, test_x, holdout_x):
+    model = M4Model()
+    hyperparameters = model.load(model_dir)
+
+    predictedY = model.predict(test_x)
+    point_test = predictedY[:,:HORIZON]
+    lower_bound_test = predictedY[:,:HORIZON] - 2*tf.abs(predictedY[:,-HORIZON:])
+    upper_bound_test = predictedY[:,:HORIZON] + 2*tf.abs(predictedY[:,-HORIZON:])
+
+    predictedY = model.predict(holdout_x)
+    point_holdout = predictedY[:,:HORIZON]
+    lower_bound_holdout = predictedY[:,:HORIZON] - 2*tf.abs(predictedY[:,-HORIZON:])
+    upper_bound_holdout = predictedY[:,:HORIZON] + 2*tf.abs(predictedY[:,-HORIZON:])
+
+    point = np.append(point_test, point_holdout, axis=0)
+    unstandarized_point = data_loader.unstandarize_predictions(point)
+
+    lower_bound = np.append(lower_bound_test, lower_bound_holdout, axis=0)
+    unstandarized_lower = data_loader.unstandarize_predictions(lower_bound)
+
+    upper_bound = np.append(upper_bound_test, upper_bound_holdout, axis=0)
+    unstandarized_upper = data_loader.unstandarize_predictions(upper_bound)
+
+    np.savetxt(f'{model_dir}/point_test.csv', unstandarized_point[:test_x.shape[0]], delimiter=",")
+    np.savetxt(f'{model_dir}/lower_test.csv', unstandarized_lower[:test_x.shape[0]], delimiter=",")
+    np.savetxt(f'{model_dir}/upper_test.csv', unstandarized_upper[:test_x.shape[0]], delimiter=",")
+
+    np.savetxt(f'{model_dir}/point_holdout.csv', unstandarized_point[test_x.shape[0]:], delimiter=",")
+    np.savetxt(f'{model_dir}/lower_holdout.csv', unstandarized_lower[test_x.shape[0]:], delimiter=",")
+    np.savetxt(f'{model_dir}/upper_holdout.csv', unstandarized_upper[test_x.shape[0]:], delimiter=",")
