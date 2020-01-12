@@ -167,9 +167,9 @@ class M4Model(object):
             self.lookback = hyperparameters['lookback']
             self.dropout_ratio = hyperparameters['dropout_ratio']
             self.features_number = hyperparameters['features_number']
-            self.clipvalue = hyperparameters['clipvalue']
             self.output_size = hyperparameters['output_size']
             self.pi_params = hyperparameters['pi_params']
+            self.clipvalue = hyperparameters['clipvalue']
             self.learning_rate = hyperparameters['learning_rate']
 
         except Exception as e:

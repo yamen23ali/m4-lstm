@@ -86,7 +86,7 @@ def modify_augmentations(model, augmentations):
     return augmentations
 
 def load_and_evaluate_model(model_base_dir, train_path, test_path,
-    train_holdout_path, test_holdout_path,x_augmentations, y_augmentations, loss_function,):
+    train_holdout_path, test_holdout_path,x_augmentations, y_augmentations, loss_function):
     
     model = M4Model()
     hyperparameters = model.load(model_base_dir)
@@ -128,7 +128,9 @@ def load_and_evaluate_model(model_base_dir, train_path, test_path,
     }
 
 
-def load_and_evaluate_model_PI(model_base_dir, training_data_dir, test_data_dir, x_augmentations, y_augmentations, evaluation_function):
+def load_and_evaluate_model_PI(model_base_dir, train_path, test_path,
+    train_holdout_path, test_holdout_path,x_augmentations, y_augmentations, evaluation_function):
+    
     model = M4Model()
     hyperparameters = model.load(model_base_dir)
 
@@ -136,14 +138,12 @@ def load_and_evaluate_model_PI(model_base_dir, training_data_dir, test_data_dir,
     x_augmentations = modify_augmentations(model, x_augmentations)
     y_augmentations = modify_augmentations(model, y_augmentations)
 
-    data_loader = M4DataLoader(training_data_dir, test_data_dir, 
-                           x_augmentations, 
-                           y_augmentations,
-                           model.lookback,  holdout_ratio=0.05)
+    data_loader = M4DataLoader(train_path, test_path, train_holdout_path, test_holdout_path,
+        x_augmentations, y_augmentations, model.lookback)
 
 
     test_x, test_y = data_loader.get_test_data()
-    validate_x, validate_y = data_loader.get_holdout_data()
+    holdout_x, holdout_y = data_loader.get_holdout_data()
 
     acd_test, msis_test = evaluation_function(model, test_x, test_y)
 
@@ -151,11 +151,11 @@ def load_and_evaluate_model_PI(model_base_dir, training_data_dir, test_data_dir,
 
     acd_naive_test, msis_naive_test = evaluate_naive_PI(test_x[:,:,0], test_y[:,:48])
 
-    acd_holdout, msis_holdout = evaluation_function(model, validate_x, validate_y)
+    acd_holdout, msis_holdout = evaluation_function(model, holdout_x, holdout_y)
 
-    if model.features_number == 1: validate_x = validate_x[:,:, np.newaxis]
+    if model.features_number == 1: holdout_x = holdout_x[:,:, np.newaxis]
     
-    acd_naive_holdout, msis_naive_holdout = evaluate_naive_PI(validate_x[:,:,0], validate_y[:,:48])
+    acd_naive_holdout, msis_naive_holdout = evaluate_naive_PI(holdout_x[:,:,0], holdout_y[:,:48])
 
     return {
     'hyperparameters': hyperparameters,
