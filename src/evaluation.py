@@ -185,19 +185,22 @@ def sort_by_prediction_error(model, X, Y, loss_function):
     
     return X, Y, predictedY, errors
 
-def predict_and_save(model_dir, test_x, holdout_x):
+def predict_and_save(model_dir, data_loader, horizon):
     model = M4Model()
     hyperparameters = model.load(model_dir)
+    test_x, test_y = data_loader.get_test_data()
+    holdout_x, holdout_y = data_loader.get_holdout_data()
+
 
     predictedY = model.predict(test_x)
-    point_test = predictedY[:,:HORIZON]
-    lower_bound_test = predictedY[:,:HORIZON] - 2*tf.abs(predictedY[:,-HORIZON:])
-    upper_bound_test = predictedY[:,:HORIZON] + 2*tf.abs(predictedY[:,-HORIZON:])
+    point_test = predictedY[:,:horizon]
+    lower_bound_test = predictedY[:,:horizon] - 2*tf.abs(predictedY[:,-horizon:])
+    upper_bound_test = predictedY[:,:horizon] + 2*tf.abs(predictedY[:,-horizon:])
 
     predictedY = model.predict(holdout_x)
-    point_holdout = predictedY[:,:HORIZON]
-    lower_bound_holdout = predictedY[:,:HORIZON] - 2*tf.abs(predictedY[:,-HORIZON:])
-    upper_bound_holdout = predictedY[:,:HORIZON] + 2*tf.abs(predictedY[:,-HORIZON:])
+    point_holdout = predictedY[:,:horizon]
+    lower_bound_holdout = predictedY[:,:horizon] - 2*tf.abs(predictedY[:,-horizon:])
+    upper_bound_holdout = predictedY[:,:horizon] + 2*tf.abs(predictedY[:,-horizon:])
 
     point = np.append(point_test, point_holdout, axis=0)
     unstandarized_point = data_loader.unstandarize_predictions(point)

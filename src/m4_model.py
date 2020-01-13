@@ -44,6 +44,15 @@ class M4Model(object):
         self.model.add(LSTM(hidden_layer_size, batch_input_shape=(batch_size, lookback,features_number), return_sequences=True, activation='tanh',
            kernel_initializer=keras.initializers.RandomNormal(mean=0.0, stddev=0.3), recurrent_dropout=dropout_ratio))
 
+        self.model.add(LSTM(hidden_layer_size, batch_input_shape=(batch_size, lookback,features_number), return_sequences=True, activation='tanh',
+           kernel_initializer=keras.initializers.RandomNormal(mean=0.0, stddev=0.3), recurrent_dropout=dropout_ratio))
+
+        self.model.add(LSTM(hidden_layer_size, batch_input_shape=(batch_size, lookback,features_number), return_sequences=True, activation='tanh',
+           kernel_initializer=keras.initializers.RandomNormal(mean=0.0, stddev=0.3), recurrent_dropout=dropout_ratio))
+
+        self.model.add(LSTM(hidden_layer_size, batch_input_shape=(batch_size, lookback,features_number), return_sequences=True, activation='tanh',
+           kernel_initializer=keras.initializers.RandomNormal(mean=0.0, stddev=0.3), recurrent_dropout=dropout_ratio))
+
         self.model.add(LSTM(hidden_layer_size, batch_input_shape=(batch_size, lookback,features_number),  activation='tanh',
               kernel_initializer=keras.initializers.RandomNormal(mean=0.0, stddev=0.5), recurrent_dropout=dropout_ratio))
 
