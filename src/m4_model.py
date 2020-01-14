@@ -15,7 +15,7 @@ from keras.models import model_from_json
 
 class M4Model(object):
 
-    def __init__(self, hidden_layer_size=100, batch_size=50, lookback=48, 
+    def __init__(self, hidden_layers = 2, hidden_layer_size=100, batch_size=50, lookback=48, 
         output_size=48, learning_rate=0.001, loss='mae', dropout_ratio=0.0, features_number = 1, 
         clipvalue=3, pi_params={}, callbacks=[]):
 
@@ -34,33 +34,21 @@ class M4Model(object):
         self.clipvalue = clipvalue
         self.pi_params = pi_params
         self.callbacks = callbacks
+        self.hidden_layers = hidden_layers
 
         self.model = Sequential()
 
+        for i in range(0, self.hidden_layers-1):
+            self.model.add(LSTM(hidden_layer_size, batch_input_shape=(batch_size, lookback,features_number), return_sequences=True, activation='tanh',
+                kernel_initializer=keras.initializers.RandomNormal(mean=0.0, stddev=0.3), recurrent_dropout=dropout_ratio))
 
-        self.model.add(LSTM(hidden_layer_size, batch_input_shape=(batch_size, lookback, features_number), return_sequences=True, activation='tanh',
-           kernel_initializer=keras.initializers.RandomNormal(mean=0.0, stddev=0.1), recurrent_dropout=dropout_ratio))
-
-        self.model.add(LSTM(hidden_layer_size, batch_input_shape=(batch_size, lookback,features_number), return_sequences=True, activation='tanh',
-           kernel_initializer=keras.initializers.RandomNormal(mean=0.0, stddev=0.3), recurrent_dropout=dropout_ratio))
-
-        self.model.add(LSTM(hidden_layer_size, batch_input_shape=(batch_size, lookback,features_number), return_sequences=True, activation='tanh',
-           kernel_initializer=keras.initializers.RandomNormal(mean=0.0, stddev=0.3), recurrent_dropout=dropout_ratio))
-
-        self.model.add(LSTM(hidden_layer_size, batch_input_shape=(batch_size, lookback,features_number), return_sequences=True, activation='tanh',
-           kernel_initializer=keras.initializers.RandomNormal(mean=0.0, stddev=0.3), recurrent_dropout=dropout_ratio))
-
-        self.model.add(LSTM(hidden_layer_size, batch_input_shape=(batch_size, lookback,features_number), return_sequences=True, activation='tanh',
-           kernel_initializer=keras.initializers.RandomNormal(mean=0.0, stddev=0.3), recurrent_dropout=dropout_ratio))
-
-        self.model.add(LSTM(hidden_layer_size, batch_input_shape=(batch_size, lookback,features_number),  activation='tanh',
-              kernel_initializer=keras.initializers.RandomNormal(mean=0.0, stddev=0.5), recurrent_dropout=dropout_ratio))
+        self.model.add(LSTM(hidden_layer_size, batch_input_shape=(batch_size, lookback,features_number), activation='tanh',
+                kernel_initializer=keras.initializers.RandomNormal(mean=0.0, stddev=0.3), recurrent_dropout=dropout_ratio))
 
         self.model.add(Dense(output_size, activation='linear',
                 kernel_initializer=keras.initializers.RandomNormal(mean=0.0, stddev=0.2)))
 
         self.opt = optimizers.RMSprop(lr=learning_rate, clipvalue=clipvalue)
-        #self.opt = optimizers.SGD(lr=learning_rate, decay=1e-2, momentum=0.7, nesterov=True)
 
         self.model.compile(loss=self.loss, optimizer=self.opt)
 
@@ -164,7 +152,8 @@ class M4Model(object):
             'features_number': self.features_number,
             'clipvalue': self.clipvalue,
             'output_size': self.output_size,
-            'pi_params': self.pi_params
+            'pi_params': self.pi_params,
+            'hidden_layers': self.hidden_layers
         }
 
     def __load_hyperparameters(self, hyperparameters):
@@ -180,6 +169,7 @@ class M4Model(object):
             self.pi_params = hyperparameters['pi_params']
             self.clipvalue = hyperparameters['clipvalue']
             self.learning_rate = hyperparameters['learning_rate']
+            self.hidden_layers = hyperparameters['hidden_layers']
 
         except Exception as e:
             print(f'Missing key{e}')
