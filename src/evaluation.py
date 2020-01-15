@@ -211,10 +211,12 @@ def predict_and_save(model_dir, data_loader, horizon):
     upper_bound = np.append(upper_bound_test, upper_bound_holdout, axis=0)
     unstandarized_upper = data_loader.unstandarize_predictions(upper_bound)
 
-    np.savetxt(f'{model_dir}/point_test.csv', unstandarized_point[:test_x.shape[0]], delimiter=",")
-    np.savetxt(f'{model_dir}/lower_test.csv', unstandarized_lower[:test_x.shape[0]], delimiter=",")
-    np.savetxt(f'{model_dir}/upper_test.csv', unstandarized_upper[:test_x.shape[0]], delimiter=",")
+    os.mkdir(f'{model_dir}/Test')
+    np.savetxt(f'{model_dir}/Test/point.csv', unstandarized_point[:test_x.shape[0]], delimiter=",")
+    np.savetxt(f'{model_dir}/Test/lower.csv', unstandarized_lower[:test_x.shape[0]], delimiter=",")
+    np.savetxt(f'{model_dir}/Test/upper.csv', unstandarized_upper[:test_x.shape[0]], delimiter=",")
 
-    np.savetxt(f'{model_dir}/point_holdout.csv', unstandarized_point[test_x.shape[0]:], delimiter=",")
-    np.savetxt(f'{model_dir}/lower_holdout.csv', unstandarized_lower[test_x.shape[0]:], delimiter=",")
-    np.savetxt(f'{model_dir}/upper_holdout.csv', unstandarized_upper[test_x.shape[0]:], delimiter=",")
+    os.mkdir(f'{model_dir}/Holdout')
+    np.savetxt(f'{model_dir}/Holdout/point.csv', unstandarized_point[test_x.shape[0]:], delimiter=",")
+    np.savetxt(f'{model_dir}/Holdout/lower.csv', unstandarized_lower[test_x.shape[0]:], delimiter=",")
+    np.savetxt(f'{model_dir}/Holdout/upper.csv', unstandarized_upper[test_x.shape[0]:], delimiter=",")
