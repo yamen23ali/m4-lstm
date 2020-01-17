@@ -1,0 +1,1 @@
+{"epochs": 20, "learning_rate": 0.002, "batch_size": 120, "hidden_layer_size": 120, "lookback": 48, "loss": "wrapper", "dropout_ratio": 0.2, "features_number": 1, "clipvalue": 0.2, "output_size": 144, "pi_params": {}, "hidden_layers": 2}
