@@ -86,7 +86,7 @@ class StdAugmentation(object):
         return data * coffs
 
     def set_pi_params(self, pi_params):
-       """
+        """
         Update the parameters used in calculating the std
 
         Args:

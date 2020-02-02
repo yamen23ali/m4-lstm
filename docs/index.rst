@@ -1,7 +1,3 @@
-.. M4 LSTM documentation master file, created by
-   sphinx-quickstart on Sun Feb  2 15:13:35 2020.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
 
 Welcome to M4 LSTM's documentation!
 ===================================
