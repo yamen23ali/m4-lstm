@@ -6,6 +6,26 @@ from tensorflow.keras import backend as K
 
 class BerkenLoss(object):
 
+    """ This class contains an implementation for the loss function suggested in Berken's thesis
+
+        Args:
+            horizon (int): The prediction horizon (i.e. how many steps a head to predict)
+            batch_size (int): The training batch size
+            weighted (bool): Should the loss function use the weighted MASE or not
+            lambda_ (int): A lever value to compensate weighten the PICP value
+            alpha (float): The confidence level of values inbetween the estimated lower and upper bounds
+            soften: (float): A softening factor
+
+        Attributes:
+            horizon (int): The prediction horizon (i.e. how many steps a head to predict)
+            batch_size (int): The training batch size
+            weighted (bool): Should the loss function use the weighted MASE or not
+            lambda_ (int): A lever value to compensate weighten the PICP value
+            alpha (float): The confidence level of values inbetween the estimated lower and upper bounds
+            soften: (float): A softening factor
+            mase_func (func): The MASE function to use in the loss function, either weighted or not based on the (weighted) argument value
+    """
+
     def __init__(self, horizon, batch_size, weighted=False, lambda_=24, alpha=0.05, soften=150):
         self.horizon = horizon
         self.batch_size = batch_size
@@ -18,11 +38,26 @@ class BerkenLoss(object):
         if weighted: self.mase_func = self.__weighted_mase__
 
     def loss(self):
+        """
+        A wrapper for the actual loss function in order to be able to use it in the training
+        """
         def wrapper(yTrue, yPred):
             return self.__qd_objective_lstm_c__(yTrue, yPred)
         return wrapper
 
     def __qd_objective_lstm_c__(self, yTrue, yPred):
+
+        """
+        An implementation of the loss function suggested by Berken in his thesis.
+
+        Args:
+            yTrue (array_like): The actual timeseries points of the horizon
+            yPred (array_like): The predicted timeseries points, upper bounds and lower bounds of the horizon
+
+        Returns:
+            array_like: The value of the calculated loss per sample
+
+        """
 
         MASE = self.mase_func(yTrue, yPred[:,:self.horizon])
 
@@ -49,6 +84,17 @@ class BerkenLoss(object):
         return Loss_S
 
     def __weighted_mase__(self, yTrue, yPred):
+        """
+        An implementation of the weighted MASE suggested by Berken in his thesis.
+
+        Args:
+            yTrue (array_like): The actual timeseries points of the horizon
+            yPred (array_like): The predicted timeseries points, upper bounds and lower bounds of the horizon
+
+        Returns:
+            array_like: The value of the calculated weighted MASE per sample
+
+        """
         n = tf.shape(yTrue)[0]
         abs_err = tf.abs(tf.subtract(yTrue, yPred))
         naive_err = tf.reduce_mean(tf.abs(yTrue[:,1:] - yTrue[:,:-1]), axis=1)
