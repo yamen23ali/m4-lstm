@@ -43,7 +43,7 @@ def evaluate_model(model, X, Y, loss_function):
 
     predictedY = model.predict(X)
 
-    if model.features_number == 1: 
+    if model.features_number == 1:
         X = X[:,:, np.newaxis]
 
     return loss_function(X[:,:,0], Y[:,:48], predictedY[:,:48]).numpy().mean()
@@ -85,7 +85,9 @@ def modify_augmentations(model, augmentations):
 
     return augmentations
 
-def load_and_evaluate_model(model_base_dir, training_data_dir, test_data_dir, x_augmentations, y_augmentations, loss_function,):
+def load_and_evaluate_model(model_base_dir, train_path, test_path,
+    train_holdout_path, test_holdout_path,x_augmentations, y_augmentations, loss_function):
+    
     model = M4Model()
     hyperparameters = model.load(model_base_dir)
 
@@ -93,14 +95,12 @@ def load_and_evaluate_model(model_base_dir, training_data_dir, test_data_dir, x_
     x_augmentations = modify_augmentations(model, x_augmentations)
     y_augmentations = modify_augmentations(model, y_augmentations)
 
-    data_loader = M4DataLoader(training_data_dir, test_data_dir, 
-                           x_augmentations, 
-                           y_augmentations,
-                           model.lookback,  holdout_ratio=0.05)
+    data_loader = M4DataLoader(train_path, test_path, train_holdout_path, test_holdout_path,
+        x_augmentations, y_augmentations, model.lookback)
 
 
     test_x, test_y = data_loader.get_test_data()
-    validate_x, validate_y = data_loader.get_holdout_data()
+    holdout_x, holdout_y = data_loader.get_holdout_data()
 
     test_error = evaluate_model(model, test_x, test_y, loss_function).mean()
 
@@ -109,12 +109,12 @@ def load_and_evaluate_model(model_base_dir, training_data_dir, test_data_dir, x_
     naive_test_error = evaluate_naive(test_x[:,:,0], test_y[:,:48])
     snaive_test_error = evaluate_snaive(test_x[:,:,0], test_y[:,:48])
 
-    holdout_error = evaluate_model(model, validate_x, validate_y, loss_function).mean()
+    holdout_error = evaluate_model(model, holdout_x, holdout_y, loss_function).mean()
 
-    if model.features_number == 1: validate_x = validate_x[:,:, np.newaxis]
+    if model.features_number == 1: holdout_x = holdout_x[:,:, np.newaxis]
     
-    naive_holdout_error = evaluate_naive(validate_x[:,:,0], validate_y[:,:48])
-    snaive_holdout_error = evaluate_snaive(validate_x[:,:,0], validate_y[:,:48])
+    naive_holdout_error = evaluate_naive(holdout_x[:,:,0], holdout_y[:,:48])
+    snaive_holdout_error = evaluate_snaive(holdout_x[:,:,0], holdout_y[:,:48])
 
 
     return {
@@ -128,7 +128,9 @@ def load_and_evaluate_model(model_base_dir, training_data_dir, test_data_dir, x_
     }
 
 
-def load_and_evaluate_model_PI(model_base_dir, training_data_dir, test_data_dir, x_augmentations, y_augmentations, evaluation_function):
+def load_and_evaluate_model_PI(model_base_dir, train_path, test_path,
+    train_holdout_path, test_holdout_path,x_augmentations, y_augmentations, evaluation_function):
+    
     model = M4Model()
     hyperparameters = model.load(model_base_dir)
 
@@ -136,14 +138,12 @@ def load_and_evaluate_model_PI(model_base_dir, training_data_dir, test_data_dir,
     x_augmentations = modify_augmentations(model, x_augmentations)
     y_augmentations = modify_augmentations(model, y_augmentations)
 
-    data_loader = M4DataLoader(training_data_dir, test_data_dir, 
-                           x_augmentations, 
-                           y_augmentations,
-                           model.lookback,  holdout_ratio=0.05)
+    data_loader = M4DataLoader(train_path, test_path, train_holdout_path, test_holdout_path,
+        x_augmentations, y_augmentations, model.lookback)
 
 
     test_x, test_y = data_loader.get_test_data()
-    validate_x, validate_y = data_loader.get_holdout_data()
+    holdout_x, holdout_y = data_loader.get_holdout_data()
 
     acd_test, msis_test = evaluation_function(model, test_x, test_y)
 
@@ -151,11 +151,11 @@ def load_and_evaluate_model_PI(model_base_dir, training_data_dir, test_data_dir,
 
     acd_naive_test, msis_naive_test = evaluate_naive_PI(test_x[:,:,0], test_y[:,:48])
 
-    acd_holdout, msis_holdout = evaluation_function(model, validate_x, validate_y)
+    acd_holdout, msis_holdout = evaluation_function(model, holdout_x, holdout_y)
 
-    if model.features_number == 1: validate_x = validate_x[:,:, np.newaxis]
+    if model.features_number == 1: holdout_x = holdout_x[:,:, np.newaxis]
     
-    acd_naive_holdout, msis_naive_holdout = evaluate_naive_PI(validate_x[:,:,0], validate_y[:,:48])
+    acd_naive_holdout, msis_naive_holdout = evaluate_naive_PI(holdout_x[:,:,0], holdout_y[:,:48])
 
     return {
     'hyperparameters': hyperparameters,
@@ -174,8 +174,7 @@ def sort_by_prediction_error(model, X, Y, loss_function):
 
     predictedY = model.predict(X)
 
-    errors = loss_function(Y[:,:48], predictedY[:,:48]).numpy()
-    
+    errors = loss_function(Y[:,:48], predictedY[:,:48]).numpy().flatten()
     # Ascending sorting for serires based on prediction error
     sorted_errors_indx = errors.argsort()
 
@@ -185,3 +184,39 @@ def sort_by_prediction_error(model, X, Y, loss_function):
     errors = errors[sorted_errors_indx]
     
     return X, Y, predictedY, errors
+
+def predict_and_save(model_dir, data_loader, horizon):
+    model = M4Model()
+    hyperparameters = model.load(model_dir)
+    test_x, test_y = data_loader.get_test_data()
+    holdout_x, holdout_y = data_loader.get_holdout_data()
+
+
+    predictedY = model.predict(test_x)
+    point_test = predictedY[:,:horizon]
+    lower_bound_test = predictedY[:,:horizon] - 2*tf.abs(predictedY[:,-horizon:])
+    upper_bound_test = predictedY[:,:horizon] + 2*tf.abs(predictedY[:,-horizon:])
+
+    predictedY = model.predict(holdout_x)
+    point_holdout = predictedY[:,:horizon]
+    lower_bound_holdout = predictedY[:,:horizon] - 2*tf.abs(predictedY[:,-horizon:])
+    upper_bound_holdout = predictedY[:,:horizon] + 2*tf.abs(predictedY[:,-horizon:])
+
+    point = np.append(point_test, point_holdout, axis=0)
+    unstandarized_point = data_loader.unstandarize_predictions(point)
+
+    lower_bound = np.append(lower_bound_test, lower_bound_holdout, axis=0)
+    unstandarized_lower = data_loader.unstandarize_predictions(lower_bound)
+
+    upper_bound = np.append(upper_bound_test, upper_bound_holdout, axis=0)
+    unstandarized_upper = data_loader.unstandarize_predictions(upper_bound)
+
+    os.mkdir(f'{model_dir}/Test')
+    np.savetxt(f'{model_dir}/Test/point.csv', unstandarized_point[:test_x.shape[0]], delimiter=",")
+    np.savetxt(f'{model_dir}/Test/lower.csv', unstandarized_lower[:test_x.shape[0]], delimiter=",")
+    np.savetxt(f'{model_dir}/Test/upper.csv', unstandarized_upper[:test_x.shape[0]], delimiter=",")
+
+    os.mkdir(f'{model_dir}/Holdout')
+    np.savetxt(f'{model_dir}/Holdout/point.csv', unstandarized_point[test_x.shape[0]:], delimiter=",")
+    np.savetxt(f'{model_dir}/Holdout/lower.csv', unstandarized_lower[test_x.shape[0]:], delimiter=",")
+    np.savetxt(f'{model_dir}/Holdout/upper.csv', unstandarized_upper[test_x.shape[0]:], delimiter=",")

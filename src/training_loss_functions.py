@@ -18,7 +18,7 @@ def kl_divergance(yTrue, yPred):
 	stdTrue = yTrue[:,48:] 
 	stdPred = tf.abs(yPred[:,-48:])
 
-	return  __kl_div(tsTrue, tsPred, stdTrue, stdPred)
+	return  __kl_div_gaussian(tsTrue, tsPred, stdTrue, stdPred)
 
 def kl_divergance_diff(yTrue, yPred):
 	tsTrue = yTrue[:,:48]

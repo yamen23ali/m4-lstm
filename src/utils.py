@@ -10,6 +10,7 @@ from statsmodels.tsa.seasonal import seasonal_decompose
 
 def read_raw_data(file_path):
     df = pd.read_csv(file_path)
+
     del df['V1']
     
     return df.values
