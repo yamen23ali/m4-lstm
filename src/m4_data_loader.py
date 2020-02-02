@@ -2,14 +2,14 @@ import pandas as pd
 import numpy as np   
 
 from src.utils import read_raw_data
-
 from tensorflow.python.keras.utils import Sequence
 from sklearn.preprocessing import StandardScaler
 from tensorflow.keras import backend as K
 
 class M4DataLoader(object):
 
-    """ This class is used to load data from csv files and prepare it to be used with the model.
+    """ 
+        This class is used to load data from csv files and prepare it to be used with the model.
         The data preparation here has multiple aspects :
             - Standarizing the data.
             - Augmenting new features if needed.
