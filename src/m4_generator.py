@@ -32,24 +32,22 @@ class M4Generator(Sequence):
 
     def __len__(self):
         """
-        Get the total number of batches
+            Get the total number of batches
 
-        Returns:
-            int: The total number of batches
-
+            Returns:
+                int: The total number of batches
         """
         return int(np.floor(len(self.X) / float(self.batch_size)))
 
     def __getitem__(self, idx):
         """
-        Get a pair of items (input, target) based on their index in the data array
+            Get a pair of items (input, target) based on their index in the data array
 
-        Args:
-            idx (int): The item index in the data array
+            Args:
+                idx (int): The item index in the data array
 
-        Returns:
-            (array_like, array_like): (input timeserie, target timeserie)
-
+            Returns:
+                (array_like, array_like): (input timeserie, target timeserie)
         """
         batch_x = self.X[idx * self.batch_size:(idx + 1) * self.batch_size, :]
         batch_y = self.Y[idx * self.batch_size:(idx + 1) * self.batch_size, :]
@@ -60,10 +58,9 @@ class M4Generator(Sequence):
 
     def steps_per_epoch(self):
         """
-        Get the number of steps in each epochs (i.e. the total number of batches)
+            Get the number of steps in each epochs (i.e. the total number of batches)
 
-        Returns:
-            int: The numebr of steps in each epochs
-
+            Returns:
+                int: The numebr of steps in each epochs
         """
         return self.__len__()

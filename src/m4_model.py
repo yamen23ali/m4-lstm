@@ -4,7 +4,6 @@ import json
 import numpy as np
 
 from src.utils import create_model_dir
-
 from keras.models import Sequential
 from keras.layers import Dense
 from keras.layers import LSTM
@@ -14,6 +13,46 @@ from keras.models import model_from_json
 
 
 class M4Model(object):
+
+    """ 
+        This class represent the Model that is trained on the m4 data
+
+        The model mainly depends on sequential LSTM cells followed by a dense layer.
+        Dorpout and clipping are used to prevent overfitting and exploding gradient.
+
+        Args:
+            hidden_layers (int): The number of hidden LSTM layers
+            hidden_layer_size (int): The number of hidden units in each LSTM layer
+            batch_size (int): The number of samples in one batch
+            lookback (int): How many steps to lookback in the past (i.e. The input of the model)
+            output_size (int): The size of the model output
+            learning_rate(float): The learning rate of the RMSprop algorithm used in training
+            loss(func): The loss function to use in the training
+            dropout_ratio(float): The probability of dropping a hidden unit during training
+            features_number(int): The number of features in the input data
+            clipvalue(float): The value to clip the gradient at
+            pi_params(dict): The parameters used in building the new features for KL divergence approach(only used when loading a trained model)
+            callbacks(:obj:`list` of func): A list of functions to use as call backs during training
+
+
+
+        Args:
+            hidden_layers (int): The number of hidden LSTM layers
+            hidden_layer_size (int): The number of hidden units in each LSTM layer
+            batch_size (int): The number of samples in one batch
+            lookback (int): How many steps to lookback in the past (i.e. The input of the model)
+            output_size (int): The size of the model output
+            learning_rate(float): The learning rate of the RMSprop algorithm used in training
+            loss(func): The loss function to use in the training
+            dropout_ratio(float): The probability of dropping a hidden unit during training
+            features_number(int): The number of features in the input data
+            clipvalue(float): The value to clip the gradient at
+            pi_params(dict): The parameters used in building the new features for KL divergence approach(only used when loading a trained model)
+            callbacks(:obj:`list` of func): A list of functions to use as call backs during training
+            architecture_file_name(str): The name of the architecture json file for a saved model
+            weights_file_name(str): The name of the weights json file for a saved model
+            hyperparameters_file_name(str): The name of the hyperparameters json file for a saved model
+    """
 
     def __init__(self, hidden_layers = 2, hidden_layer_size=100, batch_size=50, lookback=48, 
         output_size=48, learning_rate=0.001, loss='mae', dropout_ratio=0.0, features_number = 1, 
@@ -53,9 +92,22 @@ class M4Model(object):
         self.model.compile(loss=self.loss, optimizer=self.opt)
 
     def compile(self):
+        """
+            Complie the model (used after laoding a saved model)
+        """
         self.model.compile(loss=self.loss, optimizer=self.opt)
 
     def train(self, training_data_generator, test_data_generator, epochs):
+        """
+            Train the model on training data and test on test data after each epoch.
+
+            Args:
+                training_data_generator (:obj: `M4Generator`): A generator of training data that give batches of (input, target) timeseries
+                test_data_generator (:obj: `M4Generator`): A generator of test data that give batches of (input, target) timeseries
+
+            Returns:
+                (:obj: `History`): Its History.history attribute is a record of training loss values and metrics values at successive epochs, as well as validation loss values and validation metrics values (if applicable).
+        """
         self.epochs = epochs
 
         return self.model.fit_generator(training_data_generator,
@@ -65,6 +117,15 @@ class M4Model(object):
             epochs=epochs, callbacks= self.callbacks)
 
     def predict(self, X):
+        """
+            Predict the next (horizon) time steps of the input timeseries
+
+            Args:
+                X (array_like): The model input timeseries
+
+            Returns:
+                (array_like): The model predictions
+        """
         predictions = np.empty(shape=[0, self.output_size])
         missing_samples = 0
 
@@ -90,9 +151,27 @@ class M4Model(object):
         return predictions
 
     def evaluate(self, holdout_data_generator):
+        """
+            Evaluate (i.e predict) the model on a data, this is used to turn off the dropout
+
+            Args:
+                holdout_data_generator (:obj: `M4Generator`): A generator of holdout data that give batches of (input, target) timeseries
+
+            Returns:
+                (array_like): The model predictions
+        """
         return self.model.evaluate(holdout_data_generator)
 
     def load(self, model_dir):
+        """
+            Load a saved model
+
+            Args:
+                model_dir (str): The path that contains the saved model weights, archeticture and hyper parameters json files
+
+            Returns:
+                (dict): The model hyper parameters
+        """
         model_json_path = f'{model_dir}/{self.architecture_file_name}'
         model_weights_path = f'{model_dir}/{self.weights_file_name}'
         model_hyperparameters_path = f'{model_dir}/{self.hyperparameters_file_name}'
@@ -115,6 +194,12 @@ class M4Model(object):
 
 
     def save(self, base_dir):
+        """
+            Save a model under a directory
+
+            Args:
+                base_dir (str): The path to save the model weights, archeticture and hyper parameters json files under
+        """
         model_dir = create_model_dir(base_dir)
         model_json_path = f'{model_dir}/{self.architecture_file_name}'
         model_weights_path = f'{model_dir}/{self.weights_file_name}'
@@ -136,6 +221,12 @@ class M4Model(object):
         print(f'Saved model files to disk under{model_dir}')
 
     def __get_hyper_parameters_dict(self):
+        """
+            Get the model hyper parameters dict
+
+            Args:
+                (dict): The model hyper parameters
+        """
         loss_name = self.loss
 
         if not isinstance(self.loss, str):
@@ -157,6 +248,12 @@ class M4Model(object):
         }
 
     def __load_hyperparameters(self, hyperparameters):
+        """
+            Load hyper parameters into the current model
+
+            Returns:
+                (dict): The model hyper parameters
+        """
         try:
 
             self.epochs = hyperparameters['epochs']
