@@ -101,9 +101,9 @@ def smape(yTrue, yPred):
 		Args:
 			yTrue (array_like): The target points
 			yPred (array_like): The predicted points
-
 		Returns:
 			(float): The SMAPE error
-    """
-    ratio = tf.abs(yTrue - yPred) / (tf.abs(yTrue) + tf.abs(yPred))
-    return 200/yPred.shape[1] * tf.reduce_sum(ratio, axis = 1)
+	"""
+	ratio = tf.abs(yTrue - yPred) / (tf.abs(yTrue) + tf.abs(yPred))
+
+	return 200/yPred.shape[1] * tf.reduce_sum(ratio, axis = 1)
