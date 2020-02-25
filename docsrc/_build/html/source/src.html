@@ -35,38 +35,1315 @@
 <div class="section" id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
 </div>
-<div class="section" id="src-berken-loss-module">
-<h2>src.berken_loss module<a class="headerlink" href="#src-berken-loss-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-src.berken_loss">
+<span id="src-berken-loss-module"></span><h2>src.berken_loss module<a class="headerlink" href="#module-src.berken_loss" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="src.berken_loss.BerkenLoss">
+<em class="property">class </em><code class="sig-prename descclassname">src.berken_loss.</code><code class="sig-name descname">BerkenLoss</code><span class="sig-paren">(</span><em class="sig-param">horizon</em>, <em class="sig-param">batch_size</em>, <em class="sig-param">weighted=False</em>, <em class="sig-param">lambda_=24</em>, <em class="sig-param">alpha=0.05</em>, <em class="sig-param">soften=150</em><span class="sig-paren">)</span><a class="headerlink" href="#src.berken_loss.BerkenLoss" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>This class contains an implementation for the loss function suggested in Berken’s thesis</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>horizon</strong> (<em>int</em>) – The prediction horizon (i.e. how many steps a head to predict)</p></li>
+<li><p><strong>batch_size</strong> (<em>int</em>) – The training batch size</p></li>
+<li><p><strong>weighted</strong> (<em>bool</em>) – Should the loss function use the weighted MASE or not</p></li>
+<li><p><strong>lambda_</strong> (<em>int</em>) – A lever value to compensate weighten the PICP value</p></li>
+<li><p><strong>alpha</strong> (<em>float</em>) – The confidence level of values inbetween the estimated lower and upper bounds</p></li>
+<li><p><strong>soften</strong> – (float): A softening factor</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="attribute">
+<dt id="src.berken_loss.BerkenLoss.horizon">
+<code class="sig-name descname">horizon</code><a class="headerlink" href="#src.berken_loss.BerkenLoss.horizon" title="Permalink to this definition">¶</a></dt>
+<dd><p>The prediction horizon (i.e. how many steps a head to predict)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="src.berken_loss.BerkenLoss.batch_size">
+<code class="sig-name descname">batch_size</code><a class="headerlink" href="#src.berken_loss.BerkenLoss.batch_size" title="Permalink to this definition">¶</a></dt>
+<dd><p>The training batch size</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="src.berken_loss.BerkenLoss.weighted">
+<code class="sig-name descname">weighted</code><a class="headerlink" href="#src.berken_loss.BerkenLoss.weighted" title="Permalink to this definition">¶</a></dt>
+<dd><p>Should the loss function use the weighted MASE or not</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="src.berken_loss.BerkenLoss.lambda_">
+<code class="sig-name descname">lambda_</code><a class="headerlink" href="#src.berken_loss.BerkenLoss.lambda_" title="Permalink to this definition">¶</a></dt>
+<dd><p>A lever value to compensate weighten the PICP value</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="src.berken_loss.BerkenLoss.alpha">
+<code class="sig-name descname">alpha</code><a class="headerlink" href="#src.berken_loss.BerkenLoss.alpha" title="Permalink to this definition">¶</a></dt>
+<dd><p>The confidence level of values inbetween the estimated lower and upper bounds</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="src.berken_loss.BerkenLoss.soften">
+<code class="sig-name descname">soften</code><a class="headerlink" href="#src.berken_loss.BerkenLoss.soften" title="Permalink to this definition">¶</a></dt>
+<dd><p>(float): A softening factor</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="src.berken_loss.BerkenLoss.mase_func">
+<code class="sig-name descname">mase_func</code><a class="headerlink" href="#src.berken_loss.BerkenLoss.mase_func" title="Permalink to this definition">¶</a></dt>
+<dd><p>The MASE function to use in the loss function, either weighted or not based on the (weighted) argument value</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>func</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.berken_loss.BerkenLoss.loss">
+<code class="sig-name descname">loss</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.berken_loss.BerkenLoss.loss" title="Permalink to this definition">¶</a></dt>
+<dd><p>A wrapper for the actual loss function in order to be able to use it in the training</p>
+</dd></dl>
+
+</dd></dl>
+
 </div>
-<div class="section" id="src-data-augmentations-module">
-<h2>src.data_augmentations module<a class="headerlink" href="#src-data-augmentations-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-src.data_augmentations">
+<span id="src-data-augmentations-module"></span><h2>src.data_augmentations module<a class="headerlink" href="#module-src.data_augmentations" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="src.data_augmentations.DiffAugmentation">
+<em class="property">class </em><code class="sig-prename descclassname">src.data_augmentations.</code><code class="sig-name descname">DiffAugmentation</code><a class="headerlink" href="#src.data_augmentations.DiffAugmentation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Create new features by taking the difference of each point and the one before it</p>
+<dl class="method">
+<dt id="src.data_augmentations.DiffAugmentation.create">
+<code class="sig-name descname">create</code><span class="sig-paren">(</span><em class="sig-param">data</em><span class="sig-paren">)</span><a class="headerlink" href="#src.data_augmentations.DiffAugmentation.create" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a new set of features from the original data
+The new feature here is the difference between each point and the one before it.</p>
+<p class="rubric">Example</p>
+<p>data = (2, 7, 10, 8, 9)
+new_data = (2, 5, 3, 2, 1)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>array_like</em>) – The data to generate new features for</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The new features to add to the data</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>array_like</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="src.data_augmentations.StdAugmentation">
+<em class="property">class </em><code class="sig-prename descclassname">src.data_augmentations.</code><code class="sig-name descname">StdAugmentation</code><span class="sig-paren">(</span><em class="sig-param">pi_params={}</em>, <em class="sig-param">epsilon=0.05</em><span class="sig-paren">)</span><a class="headerlink" href="#src.data_augmentations.StdAugmentation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Create new features by calculating the STD of a gaussian distribution  for each data point</p>
+<p>Here we divide the data points values into ranges and assign each range a coefficient value.
+The final std value is obtained by multiplying the data point with its corresponding coefficient value.
+So the final std related to each point is a ratio of the point itself.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pi_params</strong> (<em>dict</em>) – The parameters to use in calculating the std</p></li>
+<li><p><strong>epsilon</strong> (<em>float</em>) – A small value to add for data points with value = 0 in order to avoid any problems during the calculations</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="attribute">
+<dt id="src.data_augmentations.StdAugmentation.epsilon">
+<code class="sig-name descname">epsilon</code><a class="headerlink" href="#src.data_augmentations.StdAugmentation.epsilon" title="Permalink to this definition">¶</a></dt>
+<dd><p>A small value to add for data points with value = 0 in order to avoid any problems during the calculations</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="src.data_augmentations.StdAugmentation.max_coff">
+<code class="sig-name descname">max_coff</code><a class="headerlink" href="#src.data_augmentations.StdAugmentation.max_coff" title="Permalink to this definition">¶</a></dt>
+<dd><p>The maximum ratio of a data point to use as std</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="src.data_augmentations.StdAugmentation.min_coff">
+<code class="sig-name descname">min_coff</code><a class="headerlink" href="#src.data_augmentations.StdAugmentation.min_coff" title="Permalink to this definition">¶</a></dt>
+<dd><p>The minimum ratio of a data point to use as std</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="src.data_augmentations.StdAugmentation.step">
+<code class="sig-name descname">step</code><a class="headerlink" href="#src.data_augmentations.StdAugmentation.step" title="Permalink to this definition">¶</a></dt>
+<dd><p>The increment in the coefficient value between 2 consuective ranges</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.data_augmentations.StdAugmentation.create">
+<code class="sig-name descname">create</code><span class="sig-paren">(</span><em class="sig-param">data</em><span class="sig-paren">)</span><a class="headerlink" href="#src.data_augmentations.StdAugmentation.create" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a new set of features from the original data
+The new feature here is standard deviation of a gaussian distributions
+given that each data point is considered as a mean of a gaussian disribution.</p>
+<p>The std is computed in a way that insure we don’t have too wide or too narrow ranges around the means.</p>
+<p class="rubric">Example</p>
+<p>data = (0.2, 1.7, 10, 3)
+std =  (0.1, 0.3, 1.4, 0.5)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>array_like</em>) – The data to generate new features for</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The new features to add to the data</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>array_like</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.data_augmentations.StdAugmentation.set_pi_params">
+<code class="sig-name descname">set_pi_params</code><span class="sig-paren">(</span><em class="sig-param">pi_params</em><span class="sig-paren">)</span><a class="headerlink" href="#src.data_augmentations.StdAugmentation.set_pi_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update the parameters used in calculating the std</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>pi_params</strong> (<em>dict</em>) – The parameters to use in calculating the std</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 </div>
-<div class="section" id="src-evaluation-module">
-<h2>src.evaluation module<a class="headerlink" href="#src-evaluation-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-src.evaluation">
+<span id="src-evaluation-module"></span><h2>src.evaluation module<a class="headerlink" href="#module-src.evaluation" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="src.evaluation.evaluate_berken_PI">
+<code class="sig-prename descclassname">src.evaluation.</code><code class="sig-name descname">evaluate_berken_PI</code><span class="sig-paren">(</span><em class="sig-param">model</em>, <em class="sig-param">X</em>, <em class="sig-param">Y</em><span class="sig-paren">)</span><a class="headerlink" href="#src.evaluation.evaluate_berken_PI" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a specific model lower and upper bounds predictions and evaluate them against ACD and MSIS error functions.
+The passed model should be trained on Berken’s error function and outputs the data as defined in Berken’s thesis.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>(</strong> (<em>model</em>) – obj: <cite>M4Model</cite>): A trained M4Model to evaluate  its predictions</p></li>
+<li><p><strong>X</strong> (<em>array_like</em>) – The insample data ( i.e. the data we have in hand that will be fed to the model)</p></li>
+<li><p><strong>Y</strong> (<em>array_like</em>) – The target data ( i.e. the actual data we hope to predict)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The ACD and MSIS errors on the predicted PIs (i.e. upper and lower bounds)</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(float, float)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="src.evaluation.evaluate_exponential_smoothing">
+<code class="sig-prename descclassname">src.evaluation.</code><code class="sig-name descname">evaluate_exponential_smoothing</code><span class="sig-paren">(</span><em class="sig-param">X</em>, <em class="sig-param">Y</em>, <em class="sig-param">loss_function</em><span class="sig-paren">)</span><a class="headerlink" href="#src.evaluation.evaluate_exponential_smoothing" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate an exponential smoothing points predictions and evaluate them against some loss function</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>X</strong> (<em>array_like</em>) – The insample data ( i.e. the data we have in hand that will be fed to the model)</p></li>
+<li><p><strong>Y</strong> (<em>array_like</em>) – The target data ( i.e. the actual data we hope to predict)</p></li>
+<li><p><strong>loss_function</strong> (<em>func</em>) – The loss function to evaluate the predictions against</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The loss on the predicted points</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="src.evaluation.evaluate_kl_PI">
+<code class="sig-prename descclassname">src.evaluation.</code><code class="sig-name descname">evaluate_kl_PI</code><span class="sig-paren">(</span><em class="sig-param">model</em>, <em class="sig-param">X</em>, <em class="sig-param">Y</em><span class="sig-paren">)</span><a class="headerlink" href="#src.evaluation.evaluate_kl_PI" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a specific model lower and upper bounds predictions and evaluate them against ACD and MSIS error functions.
+The passed model should be trained on kl_divergence error function and outputs the data as defined in the KL divergence approach.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>(</strong> (<em>model</em>) – obj: <cite>M4Model</cite>): A trained M4Model to evaluate  its predictions</p></li>
+<li><p><strong>X</strong> (<em>array_like</em>) – The insample data ( i.e. the data we have in hand that will be fed to the model)</p></li>
+<li><p><strong>Y</strong> (<em>array_like</em>) – The target data ( i.e. the actual data we hope to predict)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The ACD and MSIS errors on the predicted PIs (i.e. upper and lower bounds)</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(float, float)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="src.evaluation.evaluate_model">
+<code class="sig-prename descclassname">src.evaluation.</code><code class="sig-name descname">evaluate_model</code><span class="sig-paren">(</span><em class="sig-param">model</em>, <em class="sig-param">X</em>, <em class="sig-param">Y</em>, <em class="sig-param">loss_function</em><span class="sig-paren">)</span><a class="headerlink" href="#src.evaluation.evaluate_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a specific model predictions and evaluate them against some loss function</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>(</strong> (<em>model</em>) – obj: <cite>M4Model</cite>): A trained M4Model to evaluate  its predictions</p></li>
+<li><p><strong>X</strong> (<em>array_like</em>) – The insample data ( i.e. the data we have in hand that will be fed to the model)</p></li>
+<li><p><strong>Y</strong> (<em>array_like</em>) – The target data ( i.e. the actual data we hope to predict)</p></li>
+<li><p><strong>loss_function</strong> (<em>func</em>) – The loss function to evaluate the predictions against</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The loss on the predicted points</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="src.evaluation.evaluate_naive">
+<code class="sig-prename descclassname">src.evaluation.</code><code class="sig-name descname">evaluate_naive</code><span class="sig-paren">(</span><em class="sig-param">X</em>, <em class="sig-param">Y</em><span class="sig-paren">)</span><a class="headerlink" href="#src.evaluation.evaluate_naive" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a Naive model points predictions and evaluate them against the M4_MASE error function</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>X</strong> (<em>array_like</em>) – The insample data ( i.e. the data we have in hand that will be fed to the model)</p></li>
+<li><p><strong>Y</strong> (<em>array_like</em>) – The target data ( i.e. the actual data we hope to predict)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The M4_MASE error on the Naive predictions</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="src.evaluation.evaluate_naive_PI">
+<code class="sig-prename descclassname">src.evaluation.</code><code class="sig-name descname">evaluate_naive_PI</code><span class="sig-paren">(</span><em class="sig-param">X</em>, <em class="sig-param">Y</em><span class="sig-paren">)</span><a class="headerlink" href="#src.evaluation.evaluate_naive_PI" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a Naive model upper and lower bounds predictions and evaluate them against ACD and MSIS error functions</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>X</strong> (<em>array_like</em>) – The insample data ( i.e. the data we have in hand that will be fed to the model)</p></li>
+<li><p><strong>Y</strong> (<em>array_like</em>) – The target data ( i.e. the actual data we hope to predict)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The ACD and MSIS errors on the predicted PIs (i.e. upper and lower bounds)</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(float, float)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="src.evaluation.evaluate_snaive">
+<code class="sig-prename descclassname">src.evaluation.</code><code class="sig-name descname">evaluate_snaive</code><span class="sig-paren">(</span><em class="sig-param">X</em>, <em class="sig-param">Y</em><span class="sig-paren">)</span><a class="headerlink" href="#src.evaluation.evaluate_snaive" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a Snaive model points predictions and evaluate them against the M4_MASE error function</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>X</strong> (<em>array_like</em>) – The insample data ( i.e. the data we have in hand that will be fed to the model)</p></li>
+<li><p><strong>Y</strong> (<em>array_like</em>) – The target data ( i.e. the actual data we hope to predict)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The M4_MASE error on the Snaive predictions</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="src.evaluation.load_and_evaluate_model">
+<code class="sig-prename descclassname">src.evaluation.</code><code class="sig-name descname">load_and_evaluate_model</code><span class="sig-paren">(</span><em class="sig-param">model_base_dir</em>, <em class="sig-param">train_path</em>, <em class="sig-param">test_path</em>, <em class="sig-param">train_holdout_path</em>, <em class="sig-param">test_holdout_path</em>, <em class="sig-param">x_augmentations</em>, <em class="sig-param">y_augmentations</em>, <em class="sig-param">loss_function</em><span class="sig-paren">)</span><a class="headerlink" href="#src.evaluation.load_and_evaluate_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load a pretrained model and evaluate its point prediction against a specific loss function</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model_base_dir</strong> (<em>str</em>) – The path of the saved model in the file system</p></li>
+<li><p><strong>train_path</strong> (<em>str</em>) – The path of the training.csv file of the training_test dataset</p></li>
+<li><p><strong>test_path</strong> (<em>str</em>) – The path of the test.csv file of the training_test dataset</p></li>
+<li><p><strong>train_holdout_path</strong> (<em>str</em>) – The path of the training.csv file of the holdout dataset</p></li>
+<li><p><strong>test_holdout_path</strong> (<em>str</em>) – The path of the test.csv file of the holdout dataset</p></li>
+<li><p><strong>x_augmentations</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">list</span></code> of Augmentations) – A list of augmentations to apply on the input data (i.e. data fed to the model)</p></li>
+<li><p><strong>y_augmentations</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">list</span></code> of Augmentations) – A list of augmentations to apply on the output data (i.e. predictions of the model)</p></li>
+<li><p><strong>loss_function</strong> (<em>func</em>) – The loss function to evaluate the predictions against</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>TThe loaded model hyperparameters and the model, snaive and naive error on the holdout and test data</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(dict)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="src.evaluation.load_and_evaluate_model_PI">
+<code class="sig-prename descclassname">src.evaluation.</code><code class="sig-name descname">load_and_evaluate_model_PI</code><span class="sig-paren">(</span><em class="sig-param">model_base_dir</em>, <em class="sig-param">train_path</em>, <em class="sig-param">test_path</em>, <em class="sig-param">train_holdout_path</em>, <em class="sig-param">test_holdout_path</em>, <em class="sig-param">x_augmentations</em>, <em class="sig-param">y_augmentations</em>, <em class="sig-param">loss_function</em><span class="sig-paren">)</span><a class="headerlink" href="#src.evaluation.load_and_evaluate_model_PI" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load a pretrained model and evaluate its lower and upper bounds predictions against a specific loss function</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model_base_dir</strong> (<em>str</em>) – The path of the saved model in the file system</p></li>
+<li><p><strong>train_path</strong> (<em>str</em>) – The path of the training.csv file of the training_test dataset</p></li>
+<li><p><strong>test_path</strong> (<em>str</em>) – The path of the test.csv file of the training_test dataset</p></li>
+<li><p><strong>train_holdout_path</strong> (<em>str</em>) – The path of the training.csv file of the holdout dataset</p></li>
+<li><p><strong>test_holdout_path</strong> (<em>str</em>) – The path of the test.csv file of the holdout dataset</p></li>
+<li><p><strong>x_augmentations</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">list</span></code> of Augmentations) – A list of augmentations to apply on the input data (i.e. data fed to the model)</p></li>
+<li><p><strong>y_augmentations</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">list</span></code> of Augmentations) – A list of augmentations to apply on the output data (i.e. predictions of the model)</p></li>
+<li><p><strong>loss_function</strong> (<em>func</em>) – The loss function to evaluate the predictions against</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The loaded model hyperparameters and the model, snaive and naive error on the holdout and test data</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(dict)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="src.evaluation.modify_augmentations">
+<code class="sig-prename descclassname">src.evaluation.</code><code class="sig-name descname">modify_augmentations</code><span class="sig-paren">(</span><em class="sig-param">model</em>, <em class="sig-param">augmentations</em><span class="sig-paren">)</span><a class="headerlink" href="#src.evaluation.modify_augmentations" title="Permalink to this definition">¶</a></dt>
+<dd><p>A helper function to modify augmentations based on trained model values</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>(</strong> (<em>model</em>) – obj: <cite>M4Model</cite>): A trained M4Model to evaluate  its predictions</p></li>
+<li><p><strong>augmentations</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">list</span></code> of Augmentations) – A list of augmentations to modify</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The augmentations after being modified with appropriate values from a previously trained model</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(<code class="xref py py-obj docutils literal notranslate"><span class="pre">list</span></code> of Augmentations)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="src.evaluation.predict_and_save">
+<code class="sig-prename descclassname">src.evaluation.</code><code class="sig-name descname">predict_and_save</code><span class="sig-paren">(</span><em class="sig-param">model_dir</em>, <em class="sig-param">data_loader</em>, <em class="sig-param">horizon</em><span class="sig-paren">)</span><a class="headerlink" href="#src.evaluation.predict_and_save" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get model predictions on a specific dataset and save the results.
+Since a standarization was applied on the data before training, we need to unstandarize the output of the model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model_dir</strong> (<em>str</em>) – A path to save the model under it</p></li>
+<li><p><strong>(</strong> (<em>data_loader</em>) – obj: <cite>M4DataLoader</cite>): A data loader instance that will give the model input data</p></li>
+<li><p><strong>horizon</strong> (<em>int</em>) – The prediction horizon (i.e. how many steps a head to predict)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="src.evaluation.sort_by_prediction_error">
+<code class="sig-prename descclassname">src.evaluation.</code><code class="sig-name descname">sort_by_prediction_error</code><span class="sig-paren">(</span><em class="sig-param">model</em>, <em class="sig-param">X</em>, <em class="sig-param">Y</em>, <em class="sig-param">loss_function</em><span class="sig-paren">)</span><a class="headerlink" href="#src.evaluation.sort_by_prediction_error" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sort the model predictions and the associated data by the error.
+The main idea of this function is to get the (input data, predictions) sorted based on the ascending error value.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>(</strong> (<em>model</em>) – obj: <cite>M4Model</cite>): A trained M4Model to evaluate  its predictions</p></li>
+<li><p><strong>X</strong> (<em>array_like</em>) – The insample data ( i.e. the data we have in hand that will be fed to the model)</p></li>
+<li><p><strong>Y</strong> (<em>array_like</em>) – The target data ( i.e. the actual data we hope to predict)</p></li>
+<li><p><strong>loss_function</strong> (<em>func</em>) – The loss function to evaluate the predictions against</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>(The sorted input data, The sorted ground truth data, The sorted predictions, THe sorted errors)</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(array_like, array_like, array_like, array_like)</p>
+</dd>
+</dl>
+</dd></dl>
+
 </div>
-<div class="section" id="src-m4-data-loader-module">
-<h2>src.m4_data_loader module<a class="headerlink" href="#src-m4-data-loader-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-src.m4_data_loader">
+<span id="src-m4-data-loader-module"></span><h2>src.m4_data_loader module<a class="headerlink" href="#module-src.m4_data_loader" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="src.m4_data_loader.M4DataLoader">
+<em class="property">class </em><code class="sig-prename descclassname">src.m4_data_loader.</code><code class="sig-name descname">M4DataLoader</code><span class="sig-paren">(</span><em class="sig-param">train_data_path</em>, <em class="sig-param">test_data_path</em>, <em class="sig-param">train_holdout_path</em>, <em class="sig-param">test_holdout_path</em>, <em class="sig-param">x_augmentations=[]</em>, <em class="sig-param">y_augmentations=[]</em>, <em class="sig-param">lookback=48</em>, <em class="sig-param">horizon=48</em><span class="sig-paren">)</span><a class="headerlink" href="#src.m4_data_loader.M4DataLoader" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>This class is used to load data from csv files and prepare it to be used with the model.
+The data preparation here has multiple aspects :</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Standarizing the data.</p></li>
+<li><p>Augmenting new features if needed.</p></li>
+<li><p>Split the data into (training, test &amp; holdout)</p></li>
+<li><p>Generate multiple time series form on time serie using the llok back and horizon parameters.</p></li>
+</ul>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>train_path</strong> (<em>str</em>) – The path of the training.csv file of the training_test dataset</p></li>
+<li><p><strong>test_path</strong> (<em>str</em>) – The path of the test.csv file of the training_test dataset</p></li>
+<li><p><strong>train_holdout_path</strong> (<em>str</em>) – The path of the training.csv file of the holdout dataset</p></li>
+<li><p><strong>test_holdout_path</strong> (<em>str</em>) – The path of the test.csv file of the holdout dataset</p></li>
+<li><p><strong>x_augmentations</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">list</span></code> of Augmentations) – A list of augmentations to apply on the input data (i.e. data fed to the model)</p></li>
+<li><p><strong>y_augmentations</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">list</span></code> of Augmentations) – A list of augmentations to apply on the output data (i.e. predictions of the model)</p></li>
+<li><p><strong>lookback</strong> (<em>int</em>) – How many steps to lookback in the past (i.e. The input of the model)</p></li>
+<li><p><strong>horizon</strong> (<em>int</em>) – The prediction horizon (i.e. how many steps a head to predict)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="attribute">
+<dt id="src.m4_data_loader.M4DataLoader.x_augmentations">
+<code class="sig-name descname">x_augmentations</code><a class="headerlink" href="#src.m4_data_loader.M4DataLoader.x_augmentations" title="Permalink to this definition">¶</a></dt>
+<dd><p>A list of augmentations to apply on the input data (i.e. data fed to the model)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">list</span></code> of Augmentations</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="src.m4_data_loader.M4DataLoader.y_augmentations">
+<code class="sig-name descname">y_augmentations</code><a class="headerlink" href="#src.m4_data_loader.M4DataLoader.y_augmentations" title="Permalink to this definition">¶</a></dt>
+<dd><p>A list of augmentations to apply on the output data (i.e. predictions of the model)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">list</span></code> of Augmentations</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="src.m4_data_loader.M4DataLoader.lookback">
+<code class="sig-name descname">lookback</code><a class="headerlink" href="#src.m4_data_loader.M4DataLoader.lookback" title="Permalink to this definition">¶</a></dt>
+<dd><p>How many steps to lookback in the past (i.e. The input of the model)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="src.m4_data_loader.M4DataLoader.horizon">
+<code class="sig-name descname">horizon</code><a class="headerlink" href="#src.m4_data_loader.M4DataLoader.horizon" title="Permalink to this definition">¶</a></dt>
+<dd><p>The prediction horizon (i.e. how many steps a head to predict)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="src.m4_data_loader.M4DataLoader.raw_train_data">
+<code class="sig-name descname">raw_train_data</code><a class="headerlink" href="#src.m4_data_loader.M4DataLoader.raw_train_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>The raw csv train data from the train_test dataset</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>array_like</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="src.m4_data_loader.M4DataLoader.raw_test_data">
+<code class="sig-name descname">raw_test_data</code><a class="headerlink" href="#src.m4_data_loader.M4DataLoader.raw_test_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>The raw csv train data from the train_test dataset</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>array_like</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="src.m4_data_loader.M4DataLoader.raw_train_holdout_data">
+<code class="sig-name descname">raw_train_holdout_data</code><a class="headerlink" href="#src.m4_data_loader.M4DataLoader.raw_train_holdout_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>The raw csv train data from the holdout dataset</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>array_like</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="src.m4_data_loader.M4DataLoader.raw_test_holdout_data">
+<code class="sig-name descname">raw_test_holdout_data</code><a class="headerlink" href="#src.m4_data_loader.M4DataLoader.raw_test_holdout_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>The raw csv train data from the holdout dataset</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>array_like</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="src.m4_data_loader.M4DataLoader.train_test_data">
+<code class="sig-name descname">train_test_data</code><a class="headerlink" href="#src.m4_data_loader.M4DataLoader.train_test_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>The standarized train_test dataset</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>array_like</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="src.m4_data_loader.M4DataLoader.holdout_data">
+<code class="sig-name descname">holdout_data</code><a class="headerlink" href="#src.m4_data_loader.M4DataLoader.holdout_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>The standarized holdout dataset</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>array_like</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="src.m4_data_loader.M4DataLoader.train_serie_length">
+<code class="sig-name descname">train_serie_length</code><a class="headerlink" href="#src.m4_data_loader.M4DataLoader.train_serie_length" title="Permalink to this definition">¶</a></dt>
+<dd><p>The training time serie length in the train_test dataset</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="src.m4_data_loader.M4DataLoader.test_serie_length">
+<code class="sig-name descname">test_serie_length</code><a class="headerlink" href="#src.m4_data_loader.M4DataLoader.test_serie_length" title="Permalink to this definition">¶</a></dt>
+<dd><p>The test time serie length in the train_test dataset</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="src.m4_data_loader.M4DataLoader.train_holdout_serie_length">
+<code class="sig-name descname">train_holdout_serie_length</code><a class="headerlink" href="#src.m4_data_loader.M4DataLoader.train_holdout_serie_length" title="Permalink to this definition">¶</a></dt>
+<dd><p>The training time serie length in the holdout dataset</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="src.m4_data_loader.M4DataLoader.test_holdout_serie_length">
+<code class="sig-name descname">test_holdout_serie_length</code><a class="headerlink" href="#src.m4_data_loader.M4DataLoader.test_holdout_serie_length" title="Permalink to this definition">¶</a></dt>
+<dd><p>The test time serie length in the holdout dataset</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.m4_data_loader.M4DataLoader.get_holdout_data">
+<code class="sig-name descname">get_holdout_data</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.m4_data_loader.M4DataLoader.get_holdout_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the never seen data( X, Y ) to test the model on</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The never seen data (X,Y) to test the model on</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>(array_like, array_like)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.m4_data_loader.M4DataLoader.get_test_data">
+<code class="sig-name descname">get_test_data</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.m4_data_loader.M4DataLoader.get_test_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the data ( X, Y ) to test the model on</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The data (X,Y) to test the model on</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>(array_like, array_like)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.m4_data_loader.M4DataLoader.get_training_data">
+<code class="sig-name descname">get_training_data</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.m4_data_loader.M4DataLoader.get_training_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the data ( X, Y ) to train the model on</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The data  (X,Y) to train the model on</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>(array_like, array_like)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.m4_data_loader.M4DataLoader.unstandarize_predictions">
+<code class="sig-name descname">unstandarize_predictions</code><span class="sig-paren">(</span><em class="sig-param">predictions</em><span class="sig-paren">)</span><a class="headerlink" href="#src.m4_data_loader.M4DataLoader.unstandarize_predictions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Unstandarize the model predictions</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The never seen data to test the model on</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>(array_like)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 </div>
-<div class="section" id="src-m4-evaluation-loss-functions-module">
-<h2>src.m4_evaluation_loss_functions module<a class="headerlink" href="#src-m4-evaluation-loss-functions-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-src.m4_evaluation_loss_functions">
+<span id="src-m4-evaluation-loss-functions-module"></span><h2>src.m4_evaluation_loss_functions module<a class="headerlink" href="#module-src.m4_evaluation_loss_functions" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="src.m4_evaluation_loss_functions.acd">
+<code class="sig-prename descclassname">src.m4_evaluation_loss_functions.</code><code class="sig-name descname">acd</code><span class="sig-paren">(</span><em class="sig-param">yTrue</em>, <em class="sig-param">yLower</em>, <em class="sig-param">yUpper</em><span class="sig-paren">)</span><a class="headerlink" href="#src.m4_evaluation_loss_functions.acd" title="Permalink to this definition">¶</a></dt>
+<dd><p>The ACD error of the upper and lower bounds predictions</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>yTrue</strong> (<em>array_like</em>) – The actual timeseries points of the horizon</p></li>
+<li><p><strong>yLower</strong> (<em>array_like</em>) – The predicted lower bounds</p></li>
+<li><p><strong>yUpper</strong> (<em>array_like</em>) – The predicted upper bounds</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The ACD error of the upper and lower bounds predictions</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(float)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="src.m4_evaluation_loss_functions.m4_mase">
+<code class="sig-prename descclassname">src.m4_evaluation_loss_functions.</code><code class="sig-name descname">m4_mase</code><span class="sig-paren">(</span><em class="sig-param">in_sample</em>, <em class="sig-param">yTrue</em>, <em class="sig-param">yPred</em><span class="sig-paren">)</span><a class="headerlink" href="#src.m4_evaluation_loss_functions.m4_mase" title="Permalink to this definition">¶</a></dt>
+<dd><p>The modified MASE error as suggested by M4 competition organizers</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>in_sample</strong> (<em>array_like</em>) – The insample data ( i.e. model input)</p></li>
+<li><p><strong>yTrue</strong> (<em>array_like</em>) – The actual timeseries points of the horizon</p></li>
+<li><p><strong>yPred</strong> (<em>array_like</em>) – The predicted timeseries points, upper bounds and lower bounds of the horizon</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The M4 MASE error of the predictions</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(float)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="src.m4_evaluation_loss_functions.msis">
+<code class="sig-prename descclassname">src.m4_evaluation_loss_functions.</code><code class="sig-name descname">msis</code><span class="sig-paren">(</span><em class="sig-param">insample</em>, <em class="sig-param">yTrue</em>, <em class="sig-param">yLower</em>, <em class="sig-param">yUpper</em><span class="sig-paren">)</span><a class="headerlink" href="#src.m4_evaluation_loss_functions.msis" title="Permalink to this definition">¶</a></dt>
+<dd><p>The ACD error of the upper and lower bounds predictions</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>in_sample</strong> (<em>array_like</em>) – The insample data ( i.e. model input)</p></li>
+<li><p><strong>yTrue</strong> (<em>array_like</em>) – The actual timeseries points of the horizon</p></li>
+<li><p><strong>yLower</strong> (<em>array_like</em>) – The predicted lower bounds</p></li>
+<li><p><strong>yUpper</strong> (<em>array_like</em>) – The predicted upper bounds</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The MSIS error of the upper and lower bounds predictions</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(float)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="src.m4_evaluation_loss_functions.s_naive_error">
+<code class="sig-prename descclassname">src.m4_evaluation_loss_functions.</code><code class="sig-name descname">s_naive_error</code><span class="sig-paren">(</span><em class="sig-param">X</em>, <em class="sig-param">freq=24</em><span class="sig-paren">)</span><a class="headerlink" href="#src.m4_evaluation_loss_functions.s_naive_error" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the error of a Snaive prediction on data points</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>X</strong> (<em>array_like</em>) – The data to compute the error of Snaive prediction on</p></li>
+<li><p><strong>freq</strong> (<em>int</em>) – The frequency ( i.e. seasonality) of the data. Here it is 24 hours</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The Snaive predicitons error</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(float)</p>
+</dd>
+</dl>
+</dd></dl>
+
 </div>
-<div class="section" id="src-m4-generator-module">
-<h2>src.m4_generator module<a class="headerlink" href="#src-m4-generator-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-src.m4_generator">
+<span id="src-m4-generator-module"></span><h2>src.m4_generator module<a class="headerlink" href="#module-src.m4_generator" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="src.m4_generator.M4Generator">
+<em class="property">class </em><code class="sig-prename descclassname">src.m4_generator.</code><code class="sig-name descname">M4Generator</code><span class="sig-paren">(</span><em class="sig-param">X</em>, <em class="sig-param">Y</em>, <em class="sig-param">batch_size</em>, <em class="sig-param">features_number</em><span class="sig-paren">)</span><a class="headerlink" href="#src.m4_generator.M4Generator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tensorflow.python.keras.utils.data_utils.Sequence</span></code></p>
+<p>This class implements a data generator that will return data in batches</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>X</strong> (<em>array_like</em>) – The insample data ( i.e. The timeseries fed to the model as input)</p></li>
+<li><p><strong>Y</strong> (<em>array_like</em>) – The target data (i.e. The expected timesereis at the output)</p></li>
+<li><p><strong>batch_size</strong> (<em>int</em>) – The number of samples in one batch</p></li>
+<li><p><strong>features_number</strong> (<em>int</em>) – The number of features in input data</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="attribute">
+<dt id="src.m4_generator.M4Generator.X">
+<code class="sig-name descname">X</code><a class="headerlink" href="#src.m4_generator.M4Generator.X" title="Permalink to this definition">¶</a></dt>
+<dd><p>The insample data ( i.e. The timeseries fed to the model as input)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>array_like</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="src.m4_generator.M4Generator.Y">
+<code class="sig-name descname">Y</code><a class="headerlink" href="#src.m4_generator.M4Generator.Y" title="Permalink to this definition">¶</a></dt>
+<dd><p>The target data (i.e. The expected timesereis at the output)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>array_like</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="src.m4_generator.M4Generator.batch_size">
+<code class="sig-name descname">batch_size</code><a class="headerlink" href="#src.m4_generator.M4Generator.batch_size" title="Permalink to this definition">¶</a></dt>
+<dd><p>The number of samples in one batch</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="src.m4_generator.M4Generator.features_number">
+<code class="sig-name descname">features_number</code><a class="headerlink" href="#src.m4_generator.M4Generator.features_number" title="Permalink to this definition">¶</a></dt>
+<dd><p>The number of features in input data</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.m4_generator.M4Generator.steps_per_epoch">
+<code class="sig-name descname">steps_per_epoch</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.m4_generator.M4Generator.steps_per_epoch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the number of steps in each epochs (i.e. the total number of batches)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The numebr of steps in each epochs</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 </div>
-<div class="section" id="src-m4-model-module">
-<h2>src.m4_model module<a class="headerlink" href="#src-m4-model-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-src.m4_model">
+<span id="src-m4-model-module"></span><h2>src.m4_model module<a class="headerlink" href="#module-src.m4_model" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="src.m4_model.M4Model">
+<em class="property">class </em><code class="sig-prename descclassname">src.m4_model.</code><code class="sig-name descname">M4Model</code><span class="sig-paren">(</span><em class="sig-param">hidden_layers=2</em>, <em class="sig-param">hidden_layer_size=100</em>, <em class="sig-param">batch_size=50</em>, <em class="sig-param">lookback=48</em>, <em class="sig-param">output_size=48</em>, <em class="sig-param">learning_rate=0.001</em>, <em class="sig-param">loss='mae'</em>, <em class="sig-param">dropout_ratio=0.0</em>, <em class="sig-param">features_number=1</em>, <em class="sig-param">clipvalue=3</em>, <em class="sig-param">pi_params={}</em>, <em class="sig-param">callbacks=[]</em><span class="sig-paren">)</span><a class="headerlink" href="#src.m4_model.M4Model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>This class represent the Model that is trained on the m4 data</p>
+<p>The model mainly depends on sequential LSTM cells followed by a dense layer.
+Dorpout and clipping are used to prevent overfitting and exploding gradient.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>hidden_layers</strong> (<em>int</em>) – The number of hidden LSTM layers</p></li>
+<li><p><strong>hidden_layer_size</strong> (<em>int</em>) – The number of hidden units in each LSTM layer</p></li>
+<li><p><strong>batch_size</strong> (<em>int</em>) – The number of samples in one batch</p></li>
+<li><p><strong>lookback</strong> (<em>int</em>) – How many steps to lookback in the past (i.e. The input of the model)</p></li>
+<li><p><strong>output_size</strong> (<em>int</em>) – The size of the model output</p></li>
+<li><p><strong>learning_rate</strong> (<em>float</em>) – The learning rate of the RMSprop algorithm used in training</p></li>
+<li><p><strong>loss</strong> (<em>func</em>) – The loss function to use in the training</p></li>
+<li><p><strong>dropout_ratio</strong> (<em>float</em>) – The probability of dropping a hidden unit during training</p></li>
+<li><p><strong>features_number</strong> (<em>int</em>) – The number of features in the input data</p></li>
+<li><p><strong>clipvalue</strong> (<em>float</em>) – The value to clip the gradient at</p></li>
+<li><p><strong>pi_params</strong> (<em>dict</em>) – The parameters used in building the new features for KL divergence approach(only used when loading a trained model)</p></li>
+<li><p><strong>callbacks</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">list</span></code> of func) – A list of functions to use as call backs during training</p></li>
+<li><p><strong>hidden_layers</strong> – The number of hidden LSTM layers</p></li>
+<li><p><strong>hidden_layer_size</strong> – The number of hidden units in each LSTM layer</p></li>
+<li><p><strong>batch_size</strong> – The number of samples in one batch</p></li>
+<li><p><strong>lookback</strong> – How many steps to lookback in the past (i.e. The input of the model)</p></li>
+<li><p><strong>output_size</strong> – The size of the model output</p></li>
+<li><p><strong>learning_rate</strong> – The learning rate of the RMSprop algorithm used in training</p></li>
+<li><p><strong>loss</strong> – The loss function to use in the training</p></li>
+<li><p><strong>dropout_ratio</strong> – The probability of dropping a hidden unit during training</p></li>
+<li><p><strong>features_number</strong> – The number of features in the input data</p></li>
+<li><p><strong>clipvalue</strong> – The value to clip the gradient at</p></li>
+<li><p><strong>pi_params</strong> – The parameters used in building the new features for KL divergence approach(only used when loading a trained model)</p></li>
+<li><p><strong>callbacks</strong> – A list of functions to use as call backs during training</p></li>
+<li><p><strong>architecture_file_name</strong> (<em>str</em>) – The name of the architecture json file for a saved model</p></li>
+<li><p><strong>weights_file_name</strong> (<em>str</em>) – The name of the weights json file for a saved model</p></li>
+<li><p><strong>hyperparameters_file_name</strong> (<em>str</em>) – The name of the hyperparameters json file for a saved model</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="method">
+<dt id="src.m4_model.M4Model.compile">
+<code class="sig-name descname">compile</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.m4_model.M4Model.compile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Complie the model (used after laoding a saved model)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.m4_model.M4Model.evaluate">
+<code class="sig-name descname">evaluate</code><span class="sig-paren">(</span><em class="sig-param">holdout_data_generator</em><span class="sig-paren">)</span><a class="headerlink" href="#src.m4_model.M4Model.evaluate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate (i.e predict) the model on a data, this is used to turn off the dropout</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>(</strong> (<em>holdout_data_generator</em>) – obj: <cite>M4Generator</cite>): A generator of holdout data that give batches of (input, target) timeseries</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The model predictions</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(array_like)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.m4_model.M4Model.load">
+<code class="sig-name descname">load</code><span class="sig-paren">(</span><em class="sig-param">model_dir</em><span class="sig-paren">)</span><a class="headerlink" href="#src.m4_model.M4Model.load" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load a saved model</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>model_dir</strong> (<em>str</em>) – The path that contains the saved model weights, archeticture and hyper parameters json files</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The model hyper parameters</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(dict)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.m4_model.M4Model.predict">
+<code class="sig-name descname">predict</code><span class="sig-paren">(</span><em class="sig-param">X</em><span class="sig-paren">)</span><a class="headerlink" href="#src.m4_model.M4Model.predict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Predict the next (horizon) time steps of the input timeseries</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>X</strong> (<em>array_like</em>) – The model input timeseries</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The model predictions</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(array_like)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.m4_model.M4Model.save">
+<code class="sig-name descname">save</code><span class="sig-paren">(</span><em class="sig-param">base_dir</em><span class="sig-paren">)</span><a class="headerlink" href="#src.m4_model.M4Model.save" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save a model under a directory</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>base_dir</strong> (<em>str</em>) – The path to save the model weights, archeticture and hyper parameters json files under</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.m4_model.M4Model.train">
+<code class="sig-name descname">train</code><span class="sig-paren">(</span><em class="sig-param">training_data_generator</em>, <em class="sig-param">test_data_generator</em>, <em class="sig-param">epochs</em><span class="sig-paren">)</span><a class="headerlink" href="#src.m4_model.M4Model.train" title="Permalink to this definition">¶</a></dt>
+<dd><p>Train the model on training data and test on test data after each epoch.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>(</strong> (<em>test_data_generator</em>) – obj: <cite>M4Generator</cite>): A generator of training data that give batches of (input, target) timeseries</p></li>
+<li><p><strong>(</strong> – obj: <cite>M4Generator</cite>): A generator of test data that give batches of (input, target) timeseries</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>obj: <cite>History</cite>): Its History.history attribute is a record of training loss values and metrics values at successive epochs, as well as validation loss values and validation metrics values (if applicable).</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><p>(</p>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 </div>
-<div class="section" id="src-training-loss-functions-module">
-<h2>src.training_loss_functions module<a class="headerlink" href="#src-training-loss-functions-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-src.training_loss_functions">
+<span id="src-training-loss-functions-module"></span><h2>src.training_loss_functions module<a class="headerlink" href="#module-src.training_loss_functions" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="src.training_loss_functions.kl_divergance">
+<code class="sig-prename descclassname">src.training_loss_functions.</code><code class="sig-name descname">kl_divergance</code><span class="sig-paren">(</span><em class="sig-param">yTrue</em>, <em class="sig-param">yPred</em><span class="sig-paren">)</span><a class="headerlink" href="#src.training_loss_functions.kl_divergance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the KL divergance between targets and predictions</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>yTrue</strong> (<em>array_like</em>) – The targets (i.e. the target gaussians means and stds)</p></li>
+<li><p><strong>yPred</strong> (<em>array_like</em>) – The predictions (i.e. the predicted gaussians means and stds)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The kl divergance error</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(float)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="src.training_loss_functions.mae">
+<code class="sig-prename descclassname">src.training_loss_functions.</code><code class="sig-name descname">mae</code><span class="sig-paren">(</span><em class="sig-param">yTrue</em>, <em class="sig-param">yPred</em><span class="sig-paren">)</span><a class="headerlink" href="#src.training_loss_functions.mae" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the MAE (Mean Absolute Error) error</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>yTrue</strong> (<em>array_like</em>) – The target points</p></li>
+<li><p><strong>yPred</strong> (<em>array_like</em>) – The predicted points</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The MAE error</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(float)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="src.training_loss_functions.mase">
+<code class="sig-prename descclassname">src.training_loss_functions.</code><code class="sig-name descname">mase</code><span class="sig-paren">(</span><em class="sig-param">yTrue</em>, <em class="sig-param">yPred</em><span class="sig-paren">)</span><a class="headerlink" href="#src.training_loss_functions.mase" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the MASE ( Mean Absolute Scaled Error)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>yTrue</strong> (<em>array_like</em>) – The target points</p></li>
+<li><p><strong>yPred</strong> (<em>array_like</em>) – The predicted points</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The MASE error</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(float)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="src.training_loss_functions.naive_error">
+<code class="sig-prename descclassname">src.training_loss_functions.</code><code class="sig-name descname">naive_error</code><span class="sig-paren">(</span><em class="sig-param">yTrue</em><span class="sig-paren">)</span><a class="headerlink" href="#src.training_loss_functions.naive_error" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the error obtained by a naive model</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>yTrue</strong> (<em>array_like</em>) – The target points</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The naive model error</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(float)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="src.training_loss_functions.rmse">
+<code class="sig-prename descclassname">src.training_loss_functions.</code><code class="sig-name descname">rmse</code><span class="sig-paren">(</span><em class="sig-param">yTrue</em>, <em class="sig-param">yPred</em><span class="sig-paren">)</span><a class="headerlink" href="#src.training_loss_functions.rmse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the RMSE ( Root Mean Squared Error)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>yTrue</strong> (<em>array_like</em>) – The target points</p></li>
+<li><p><strong>yPred</strong> (<em>array_like</em>) – The predicted points</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The RMSE error</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(float)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="src.training_loss_functions.smape">
+<code class="sig-prename descclassname">src.training_loss_functions.</code><code class="sig-name descname">smape</code><span class="sig-paren">(</span><em class="sig-param">yTrue</em>, <em class="sig-param">yPred</em><span class="sig-paren">)</span><a class="headerlink" href="#src.training_loss_functions.smape" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the SMAPE ( Symmetric Mean Absolute Percentage Error)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>yTrue</strong> (<em>array_like</em>) – The target points</p></li>
+<li><p><strong>yPred</strong> (<em>array_like</em>) – The predicted points</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The SMAPE error</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(float)</p>
+</dd>
+</dl>
+</dd></dl>
+
 </div>
-<div class="section" id="src-utils-module">
-<h2>src.utils module<a class="headerlink" href="#src-utils-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-src.utils">
+<span id="src-utils-module"></span><h2>src.utils module<a class="headerlink" href="#module-src.utils" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="src.utils.create_model_dir">
+<code class="sig-prename descclassname">src.utils.</code><code class="sig-name descname">create_model_dir</code><span class="sig-paren">(</span><em class="sig-param">base_dir</em><span class="sig-paren">)</span><a class="headerlink" href="#src.utils.create_model_dir" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a directory to save the model in. This function will automatically name the directory in a proper way.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>base_dir</strong> (<em>str</em>) – The path where we want to create the directory</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="src.utils.decompose_time_serie">
+<code class="sig-prename descclassname">src.utils.</code><code class="sig-name descname">decompose_time_serie</code><span class="sig-paren">(</span><em class="sig-param">data</em><span class="sig-paren">)</span><a class="headerlink" href="#src.utils.decompose_time_serie" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decompose the time-serie into trend, seasonality and resid components</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>array_like</em>) – The path of the csv file</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A object with seasonal, trend, and resid attributes.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(<code class="xref py py-obj docutils literal notranslate"><span class="pre">DecomposeResult</span></code>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="src.utils.exponential_smoothing">
+<code class="sig-prename descclassname">src.utils.</code><code class="sig-name descname">exponential_smoothing</code><span class="sig-paren">(</span><em class="sig-param">data</em>, <em class="sig-param">forcasting_horizon=48</em>, <em class="sig-param">seasonal_periods=24</em>, <em class="sig-param">seasonal='add'</em>, <em class="sig-param">trend='add'</em><span class="sig-paren">)</span><a class="headerlink" href="#src.utils.exponential_smoothing" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply exponential smoothing forecast for a given time-serie</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>array_like</em>) – The time-serie we want to forecast its future values</p></li>
+<li><p><strong>forcasting_horizon</strong> (<em>int</em>) – The number of future time steps to forecaset</p></li>
+<li><p><strong>seasonal_periods</strong> (<em>int</em>) – The seasonality value in the time-serie</p></li>
+<li><p><strong>seasonal</strong> (<em>str</em>) – The type of seasonality. {“add”, “mul”, “additive”, “multiplicative”, None}</p></li>
+<li><p><strong>trend</strong> (<em>str</em>) – The type of trend. {“add”, “mul”, “additive”, “multiplicative”, None}</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The forecasted values</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(array_like)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="src.utils.naive_pi">
+<code class="sig-prename descclassname">src.utils.</code><code class="sig-name descname">naive_pi</code><span class="sig-paren">(</span><em class="sig-param">data</em><span class="sig-paren">)</span><a class="headerlink" href="#src.utils.naive_pi" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the prediction intervals of a Naive model</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>array_like</em>) – The time-serie we want to calculate its predcition intervals</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The upper and lower bounds as predicted by a naive model</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(array_like, array_like)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="src.utils.read_raw_data">
+<code class="sig-prename descclassname">src.utils.</code><code class="sig-name descname">read_raw_data</code><span class="sig-paren">(</span><em class="sig-param">file_path</em><span class="sig-paren">)</span><a class="headerlink" href="#src.utils.read_raw_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read the raw M4 data from csv file</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>file_path</strong> (<em>str</em>) – The path of the csv file</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The csv file content</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(array_like)</p>
+</dd>
+</dl>
+</dd></dl>
+
 </div>
-<div class="section" id="src-visualization-module">
-<h2>src.visualization module<a class="headerlink" href="#src-visualization-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-src.visualization">
+<span id="src-visualization-module"></span><h2>src.visualization module<a class="headerlink" href="#module-src.visualization" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="src.visualization.plot_m4_complete_series">
+<code class="sig-prename descclassname">src.visualization.</code><code class="sig-name descname">plot_m4_complete_series</code><span class="sig-paren">(</span><em class="sig-param">training_file_path</em>, <em class="sig-param">test_file_path</em><span class="sig-paren">)</span><a class="headerlink" href="#src.visualization.plot_m4_complete_series" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot complete M4 time-series after joining their parts from (training, test)  files.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>training_file_path</strong> (<em>str</em>) – The training csv file path</p></li>
+<li><p><strong>test_file_path</strong> (<em>str</em>) – The test csv file path</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="src.visualization.plot_serie_and_prediction">
+<code class="sig-prename descclassname">src.visualization.</code><code class="sig-name descname">plot_serie_and_prediction</code><span class="sig-paren">(</span><em class="sig-param">X</em>, <em class="sig-param">Y</em>, <em class="sig-param">predictedY</em>, <em class="sig-param">serie_indx=0</em>, <em class="sig-param">save_path=''</em><span class="sig-paren">)</span><a class="headerlink" href="#src.visualization.plot_serie_and_prediction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot a time-serie (lookback, horzion, prediction) and save the resulted figure</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>X</strong> (<em>array_like</em>) – The first part of multiple time-series (i.e. lookback)</p></li>
+<li><p><strong>Y</strong> (<em>array_like</em>) – The second part of multiple time-series (i.e. horizon)</p></li>
+<li><p><strong>predictedY</strong> (<em>array_like</em>) – The predicted second part of multiple time-series (i.e. predicted horizon)</p></li>
+<li><p><strong>serie_indx</strong> (<em>int</em>) – The serie to plot</p></li>
+<li><p><strong>save_path</strong> (<em>str</em>) – The path to save the resulted figure in. If empty the result won’t be saved.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="src.visualization.plot_serie_with_bounds">
+<code class="sig-prename descclassname">src.visualization.</code><code class="sig-name descname">plot_serie_with_bounds</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">y</em>, <em class="sig-param">predictedY</em>, <em class="sig-param">lower_bound</em>, <em class="sig-param">upper_bound</em>, <em class="sig-param">serie_indx=0</em>, <em class="sig-param">save_path=''</em><span class="sig-paren">)</span><a class="headerlink" href="#src.visualization.plot_serie_with_bounds" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot a time-serie (lookback, horzion, prediction, lower bound, upper bound) and save the resulted figure</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>X</strong> (<em>array_like</em>) – The first part of multiple time-series (i.e. lookback)</p></li>
+<li><p><strong>Y</strong> (<em>array_like</em>) – The second part of multiple time-series (i.e. horizon)</p></li>
+<li><p><strong>predictedY</strong> (<em>array_like</em>) – The predicted second part of multiple time-series (i.e. predicted horizon)</p></li>
+<li><p><strong>lower_bound</strong> (<em>array_like</em>) – The predicted lower bounds of multiple time-series.</p></li>
+<li><p><strong>upper_bound</strong> (<em>array_like</em>) – The predicted upper bounds of multiple time-series.</p></li>
+<li><p><strong>serie_indx</strong> (<em>int</em>) – The serie to plot</p></li>
+<li><p><strong>save_path</strong> (<em>str</em>) – The path to save the resulted figure in. If empty the result won’t be saved.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="src.visualization.plot_series">
+<code class="sig-prename descclassname">src.visualization.</code><code class="sig-name descname">plot_series</code><span class="sig-paren">(</span><em class="sig-param">X</em>, <em class="sig-param">Y</em>, <em class="sig-param">predictedY</em>, <em class="sig-param">series_num=3</em><span class="sig-paren">)</span><a class="headerlink" href="#src.visualization.plot_series" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot multiple series on the same figure</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>X</strong> (<em>array_like</em>) – The first part of multiple time-series (i.e. lookback)</p></li>
+<li><p><strong>Y</strong> (<em>array_like</em>) – The second part of multiple time-series (i.e. horizon)</p></li>
+<li><p><strong>predictedY</strong> (<em>array_like</em>) – The predicted second part of multiple time-series (i.e. predicted horizon)</p></li>
+<li><p><strong>series_num</strong> (<em>int</em>) – The number of series to plot</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
 </div>
-<div class="section" id="module-contents">
-<h2>Module contents<a class="headerlink" href="#module-contents" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-src">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-src" title="Permalink to this headline">¶</a></h2>
 </div>
 </div>
 
