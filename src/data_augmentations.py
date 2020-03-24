@@ -4,7 +4,6 @@ import numpy as np
 from src.utils import read_raw_data
 from tensorflow.python.keras.utils import Sequence
 from sklearn.preprocessing import StandardScaler
-from tensorflow.keras import backend as K
 
 class DiffAugmentation(object):
     """ Create new features by taking the difference of each point and the one before it

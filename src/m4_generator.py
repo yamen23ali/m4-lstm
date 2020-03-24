@@ -3,7 +3,6 @@ import numpy as np
 
 from tensorflow.python.keras.utils import Sequence
 from sklearn.preprocessing import StandardScaler
-from tensorflow.keras import backend as K
 
 class M4Generator(Sequence):
 

@@ -1,15 +1,15 @@
-import keras
 import tensorflow as tf
 import json
 import numpy as np
 
 from src.utils import create_model_dir
-from keras.models import Sequential
-from keras.layers import Dense
-from keras.layers import LSTM
-from keras.layers import Dropout
-from keras import optimizers
-from keras.models import model_from_json
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense
+from tensorflow.keras.layers import LSTM
+from tensorflow.keras.initializers import RandomNormal
+from tensorflow.keras.layers import Dropout
+from tensorflow.keras import optimizers
+from tensorflow.keras.models import model_from_json
 
 
 class M4Model(object):
@@ -79,13 +79,13 @@ class M4Model(object):
 
         for i in range(0, self.hidden_layers-1):
             self.model.add(LSTM(hidden_layer_size, batch_input_shape=(batch_size, lookback,features_number), return_sequences=True, activation='tanh',
-                kernel_initializer=keras.initializers.RandomNormal(mean=0.0, stddev=0.3), recurrent_dropout=dropout_ratio))
+                kernel_initializer=RandomNormal(mean=0.0, stddev=0.3), recurrent_dropout=dropout_ratio))
 
         self.model.add(LSTM(hidden_layer_size, batch_input_shape=(batch_size, lookback,features_number), activation='tanh',
-                kernel_initializer=keras.initializers.RandomNormal(mean=0.0, stddev=0.3), recurrent_dropout=dropout_ratio))
+                kernel_initializer=RandomNormal(mean=0.0, stddev=0.3), recurrent_dropout=dropout_ratio))
 
         self.model.add(Dense(output_size, activation='linear',
-                kernel_initializer=keras.initializers.RandomNormal(mean=0.0, stddev=0.2)))
+                kernel_initializer=RandomNormal(mean=0.0, stddev=0.2)))
 
         self.opt = optimizers.RMSprop(lr=learning_rate, clipvalue=clipvalue)
 

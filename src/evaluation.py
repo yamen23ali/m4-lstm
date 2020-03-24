@@ -1,7 +1,5 @@
 import sys
-
 import numpy as np
-import keras
 import tensorflow as tf
 
 from src.m4_evaluation_loss_functions import *
@@ -9,7 +7,6 @@ from src.m4_data_loader import M4DataLoader
 from src.m4_model import M4Model
 from src.utils import *
 from src.data_augmentations import *
-from keras.models import model_from_json
 
     
 def evaluate_snaive(X, Y):

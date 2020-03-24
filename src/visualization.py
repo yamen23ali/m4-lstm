@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-from .utils import read_raw_data
+from src.utils import read_raw_data
 
 def plot_series(X, Y, predictedY, series_num = 3):
     """
